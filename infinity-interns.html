@@ -390,7 +390,7 @@ const STATUS_BADGE={APPLIED:"gray",ADMIN_REVIEW:"warning",ORG_REVIEW:"warning",S
 /* ============================================================================
    STORE — localStorage-backed "database"
    ========================================================================== */
-const DB_KEY="infinity_interns_db_v2";
+const DB_KEY="infinity_interns_db_v3";
 const SESSION_KEY="infinity_interns_session";
 const Store={
   data:null,
@@ -459,11 +459,25 @@ const Store={
 
     // ── Demo lifecycle data so admin queues are populated on first load ──
     const fsIns=d.internships.find(i=>i.title==="Full Stack Developer Intern");
+    const mlIns=d.internships.find(i=>i.title==="Machine Learning Research Intern");
     const dvIns=d.internships.find(i=>i.title==="DevOps Engineering Intern");
     const mkApp=(ins,status,extra)=>({id:uid("app"),studentId:stuId,internshipId:ins.id,status,
       coverLetter:"Excited to contribute and learn!",resumeUrl:d.students[0].resumeUrl,githubUrl:d.students[0].githubUrl,
       appliedAt:nowISO(),history:[{from:null,to:"APPLIED",actorId:stuUserId,at:nowISO()}],
       tasks:[],attendance:[],reports:[],feedback:[],...(extra||{})});
+    // Build a fully-formed issued certificate (inline, since Store.data isn't set yet)
+    const mkCert=(app,ins)=>{
+      const su=d.users.find(x=>x.id===stuUserId),org=d.orgs.find(o=>o.id===ins.orgId),A="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+      let code="";for(let k=0;k<8;k++)code+=A[Math.floor(Math.random()*A.length)];
+      const cert={id:uid("crt"),certificateId:"INF-"+new Date().getFullYear()+"-"+code,type:"INTERNSHIP_COMPLETION",status:"ISSUED",
+        studentId:stuId,applicationId:app.id,studentName:su.fullName,organizationName:org.companyName,
+        domainName:(DOMAINS.find(dd=>dd.slug===ins.domain)||{}).name,title:"Internship Completion — "+ins.title,
+        durationWeeks:ins.durationWeeks,grade:app.finalGrade||"A",
+        verificationNumber:uid("vn").replace(/[^a-z0-9]/g,"").slice(0,18),issueDate:nowISO(),issuedBy:adminId};
+      cert.contentHash=SHA256(canonical(cert));
+      cert.signature=SHA256(cert.contentHash+"|infinity-signing-key").slice(0,32);
+      return cert;
+    };
     // 1) A COMPLETED internship awaiting admin certificate approval (org requested it)
     const appDone=mkApp(fsIns,"COMPLETED",{finalGrade:"A_PLUS",finalScore:94,startedAt:nowISO(),completedAt:nowISO()});
     appDone.history.push({from:"COMPLETION_APPROVAL",to:"COMPLETED",note:"Completion approved by admin",actorId:adminId,at:nowISO()});
@@ -471,7 +485,15 @@ const Store={
     d.applications.push(appDone);
     d.certRequests.push({id:uid("creq"),applicationId:appDone.id,studentId:stuId,internshipId:fsIns.id,
       requestedBy:orgUserId,status:"PENDING",note:"Intern exceeded expectations across all milestones.",certId:null,createdAt:nowISO()});
-    // 2) An ONGOING internship so the student workspace has live content
+    // 2) An already-CERTIFIED internship so the student's Certificates page is populated
+    const appCert=mkApp(mlIns,"CERTIFICATE_GENERATED",{finalGrade:"A",finalScore:90,startedAt:nowISO(),completedAt:nowISO()});
+    const cert0=mkCert(appCert,mlIns);
+    appCert.certificateId=cert0.id;
+    appCert.history.push({from:"COMPLETED",to:"CERTIFICATE_GENERATED",note:"Certificate "+cert0.certificateId+" issued",actorId:adminId,at:nowISO()});
+    d.applications.push(appCert);
+    d.certificates.push(cert0);
+    d.students[0].badges=["first-application","first-internship","certified"];
+    // 3) An ONGOING internship so the student workspace has live content
     const appLive=mkApp(dvIns,"ONGOING",{selectedAt:nowISO(),startedAt:nowISO()});
     appLive.attendance.push({date:new Date().toISOString().slice(0,10),present:true,hours:8});
     appLive.reports.push({id:uid("rep"),weekNumber:1,summary:"Set up CI pipeline and wrote first Dockerfile.",hoursLogged:38,blockers:"",at:nowISO()});
@@ -1068,8 +1090,17 @@ function viewInternshipDetail(slug){
 }
 function applyModal(slug){
   const i=Store.internshipBySlug(slug);const u=Session.current;
-  if(!u){toast("Please log in as a student to apply","warn");navigate("/login");return;}
-  if(!u.studentId){toast("Only student accounts can apply","error");return;}
+  if(!u){
+    openModal(`<h2 style="font-size:20px">Log in to apply</h2>
+      <p class="muted mt8" style="font-size:13.5px">Applying to <b>${esc(i.title)}</b> requires a student account.</p>
+      <div class="flex col gap8 mt16">
+        <button class="btn" data-act="demo-login-student" data-slug="${slug}">⚡ Continue as demo student</button>
+        <a class="btn outline" href="#/login" data-act="close-modal">Go to login</a>
+        <a class="btn ghost" href="#/register" data-act="close-modal">Create an account</a>
+      </div>`);
+    return;
+  }
+  if(!u.studentId){toast("Only student accounts can apply — log in as a student","error");return;}
   const stu=Store.student(u.studentId);
   openModal(`<h2 style="font-size:20px">Apply — ${esc(i.title)}</h2>
     <p class="muted mt8" style="font-size:13px">One-click apply uses your saved portfolio. Tweak anything below.</p>
@@ -1349,7 +1380,7 @@ function certificateCard(c){
     <div class="mono subtle mt16" style="font-size:10.5px;word-break:break-all">🔐 SHA-256 anti-tamper hash · ${c.contentHash}</div>
     <div class="flex between items-center mt16 wrap gap8">
       ${revoked?`<span class="badge danger">⛔ REVOKED — ${esc(c.revokeReason||"")}</span>`:`<span class="badge success">✓ Authentic · verifiable at ${verifyUrl}</span>`}
-      <div class="flex gap8"><a class="btn sm outline" href="#/verify/${c.certificateId}">Verify online</a><button class="btn sm" data-act="print-cert" data-id="${c.id}">🖨 Print / PDF</button></div>
+      <div class="flex gap8"><a class="btn sm outline" href="#/verify/${c.certificateId}">Verify online</a><button class="btn sm" data-act="print-cert" data-id="${c.id}">⬇ Download PDF</button></div>
     </div>
   </div>`;
 }
@@ -1698,14 +1729,12 @@ function assessmentModal(){openModal(`<h2 style="font-size:20px">⚡ Skill Asses
   <form data-form="assessment" class="mt16">${QUIZ.map((q,i)=>`<div class="field"><label>${i+1}. ${esc(q.q)}</label>${q.a.map((opt,j)=>`<label style="font-weight:400;display:flex;gap:8px;align-items:center;margin-bottom:4px"><input type="radio" name="q${i}" value="${j}" style="width:auto"> ${esc(opt)}</label>`).join("")}</div>`).join("")}
     <div class="flex gap8" style="justify-content:flex-end"><button type="button" class="btn ghost" data-act="close-modal">Cancel</button><button class="btn">Submit</button></div></form>`);}
 
-function printCert(id){
-  const c=Store.certificate(id);if(!c)return;
-  const w=window.open("","_blank");
-  if(!w){toast("Pop-up blocked — allow pop-ups to print","warn");return;}
+/* Build the premium printable certificate document (no auto-print script). */
+function buildCertDoc(c){
   const tmp=document.createElement("canvas");tmp.width=180;tmp.height=180;
   drawQR(tmp,"https://infinityinterns.com/verify/"+c.certificateId+"|"+c.contentHash);
   const yr=new Date(c.issueDate).getFullYear();
-  w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>${c.certificateId}</title>
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${c.certificateId}</title>
   <style>
     @page{size:A4 landscape;margin:0}
     *{box-sizing:border-box;margin:0;font-family:Georgia,'Times New Roman',serif}
@@ -1743,10 +1772,31 @@ function printCert(id){
       <div style="text-align:right"><div class="seal">★<br>VERIFIED<br>${yr}</div><div class="ln mono" style="text-align:right">${c.certificateId}</div></div>
     </div>
     <div class="in meta">Verify #: ${esc(c.verificationNumber)} &nbsp;·&nbsp; SHA-256: ${c.contentHash} &nbsp;·&nbsp; Verify at infinityinterns.com/verify/${c.certificateId}</div>
-  </div>
-  <script>window.onload=function(){setTimeout(function(){window.print();},250);}<\/script>
-  </body></html>`);
-  w.document.close();
+  </div></body></html>`;
+}
+
+/* Print / Save-as-PDF using a hidden iframe (reliable, no pop-up blocker),
+   with a new-window fallback. */
+function printCert(id){
+  const c=Store.certificate(id);if(!c){toast("Certificate not found","error");return;}
+  const html=buildCertDoc(c);
+  try{
+    const iframe=document.createElement("iframe");
+    iframe.setAttribute("aria-hidden","true");
+    iframe.style.cssText="position:fixed;right:0;bottom:0;width:0;height:0;border:0;opacity:0";
+    document.body.appendChild(iframe);
+    const doc=iframe.contentWindow.document;doc.open();doc.write(html);doc.close();
+    setTimeout(()=>{
+      try{iframe.contentWindow.focus();iframe.contentWindow.print();}
+      catch(err){
+        const w=window.open("","_blank");
+        if(w){w.document.write(html);w.document.close();w.focus();setTimeout(()=>w.print(),300);}
+        else toast("Allow pop-ups to download the certificate","warn");
+      }
+      setTimeout(()=>iframe.remove(),2000);
+    },350);
+    toast("Opening print dialog — choose “Save as PDF” to download");
+  }catch(err){toast("Print failed: "+err.message,"error");}
 }
 
 /* Download the entire local dataset as a JSON backup. */
@@ -1772,6 +1822,10 @@ document.addEventListener("click",(e)=>{
   const el=e.target.closest("[data-act]");
   if(!el)return;
   const act=el.dataset.act, id=el.dataset.id, u=Session.current;
+  // The modal overlay carries data-act. Only treat it as a backdrop click when
+  // the overlay ITSELF was clicked — otherwise return WITHOUT preventDefault so
+  // inner controls (especially form submit buttons) keep native behavior.
+  if(act==="modal-backdrop"){ if(e.target===el){e.preventDefault();closeModal();} return; }
   const need=(role)=>{if(!u){toast("Please log in first","warn");navigate("/login");return false;}if(role&&!u.roles.includes(role)){toast("Wrong account type","error");return false;}return true;};
   e.preventDefault();
   try{
@@ -1782,8 +1836,8 @@ document.addEventListener("click",(e)=>{
     case "read-all":{myNotifs().forEach(n=>n.read=true);Store.save();renderHeaderBits();const dd=$("#notif-dd");if(dd){dd.innerHTML=notifDropdown();dd.classList.remove("hidden");}break;}
     case "read-notif":{const n=Store.data.notifications.find(x=>x.id===el.dataset.id);if(n){n.read=true;Store.save();}closeDropdowns();if(n&&n.link)navigate(n.link.replace(/^#/,""));else renderHeaderBits();break;}
     case "logout":Auth.logout();toast("Logged out");break;
-    case "modal-backdrop":if(e.target===el)closeModal();break;
     case "close-modal":closeModal();break;
+    case "demo-login-student":{Auth.login("student@example.com","Password@123");toast("Logged in as demo student");closeModal();if(el.dataset.slug){applyModal(el.dataset.slug);}else{render();}break;}
     case "auth-role":authRole=el.dataset.role;render();break;
     case "filter-branch":catalogFilters={q:"",domain:"",branch:el.dataset.slug,workMode:""};navigate("/internships");break;
     case "filter-domain":catalogFilters={q:"",domain:el.dataset.slug,branch:"",workMode:""};navigate("/internships");break;
