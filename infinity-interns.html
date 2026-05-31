@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Infinity Interns™ — Engineering Internship Platform</title>
 <meta name="description" content="Discover, apply, complete and earn verified internships across 30+ engineering branches and 35+ domains. Single-file demo app." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%236d4aff'/%3E%3Ctext x='16' y='24' font-size='22' text-anchor='middle' fill='white' font-family='Arial'%3E%E2%88%9E%3C/text%3E%3C/svg%3E" />
 <style>
 /* ─────────────────────────────────────────────────────────────
    Design tokens (light + dark)
@@ -17,6 +18,7 @@
   --success:#10b981; --warning:#f59e0b; --danger:#ef4444;
   --radius:14px; --shadow:0 10px 30px -12px rgba(2,6,23,.25);
   --header-h:64px;
+  --gold:#c9a227; --gold-2:#f5de8b;
 }
 html[data-theme="dark"]{
   --bg:#070b18; --fg:#e8edf7; --card:#0e1426; --card-fg:#e8edf7;
@@ -170,16 +172,69 @@ table.tbl tr:hover td{background:var(--muted)}
 .timeline:before{content:"";position:absolute;left:6px;top:4px;bottom:4px;width:2px;background:var(--border)}
 .timeline .ev{position:relative;padding:0 0 16px 0}
 .timeline .ev:before{content:"";position:absolute;left:-19px;top:5px;width:10px;height:10px;border-radius:50%;background:var(--primary)}
-.cert{position:relative;border:2px solid var(--primary);border-radius:16px;padding:32px;background:
-  radial-gradient(circle at 90% 10%,color-mix(in srgb,var(--primary) 10%,transparent),transparent 40%),var(--card)}
-.cert .seal{position:absolute;top:22px;right:22px;width:74px;height:74px;border-radius:50%;display:grid;place-items:center;
-  border:2px dashed var(--primary);color:var(--primary);font-size:11px;font-weight:800;text-align:center}
+.cert{position:relative;overflow:hidden;border-radius:16px;padding:40px 38px;color:var(--card-fg);
+  background:linear-gradient(135deg,color-mix(in srgb,var(--primary) 7%,var(--card)),var(--card) 60%);
+  border:1px solid var(--border);box-shadow:var(--shadow)}
+.cert:before{content:"";position:absolute;inset:9px;border:2px solid color-mix(in srgb,var(--gold) 65%,transparent);border-radius:11px;pointer-events:none;z-index:1}
+.cert:after{content:"";position:absolute;inset:14px;border:1px solid color-mix(in srgb,var(--gold) 38%,transparent);border-radius:8px;pointer-events:none;z-index:1}
+.cert .wm{position:absolute;right:-26px;bottom:-70px;font-size:300px;line-height:1;font-weight:900;color:color-mix(in srgb,var(--primary) 6%,transparent);pointer-events:none;z-index:0}
+.cert > *{position:relative;z-index:2}
+.cert-kicker{letter-spacing:.34em;text-transform:uppercase;font-size:12px;color:var(--muted-fg);font-weight:800}
+.cert-name{font-family:Georgia,'Times New Roman',serif;font-size:clamp(28px,5vw,40px);font-weight:700;letter-spacing:.4px}
+.gold{color:var(--gold)}
+.sig{font-family:'Segoe Script','Brush Script MT','Snell Roundhand',cursive;font-size:26px;line-height:1.1}
+.sig-line{border-top:1.5px solid var(--muted-fg);padding-top:6px;margin-top:6px;font-size:11.5px;color:var(--muted-fg);min-width:150px;display:inline-block}
+.medal{width:88px;height:88px;border-radius:50%;display:grid;place-items:center;text-align:center;color:#5b4a12;font-weight:800;font-size:10px;line-height:1.3;
+  background:radial-gradient(circle at 34% 30%,var(--gold-2),var(--gold));box-shadow:0 8px 20px -8px var(--gold),inset 0 0 0 3px rgba(255,255,255,.35)}
+.cert-foot{border-top:1px dashed color-mix(in srgb,var(--gold) 45%,transparent);margin-top:24px;padding-top:16px}
 canvas.qr{border-radius:8px;background:#fff;padding:6px}
 .notif-wrap{position:relative}
 .notif-badge{position:absolute;top:-3px;right:-3px;min-width:16px;height:16px;padding:0 4px;border-radius:999px;background:var(--danger);color:#fff;font-size:10px;font-weight:700;display:grid;place-items:center}
 .dropdown{position:absolute;top:48px;right:0;width:320px;max-height:400px;overflow:auto;z-index:60}
 .scrollx{overflow-x:auto}
 .pill-row{display:flex;flex-wrap:wrap;gap:8px}
+
+/* Focus rings for accessibility */
+.btn:focus-visible,.side-link:focus-visible,.chip:focus-visible{outline:2px solid var(--ring);outline-offset:2px}
+
+/* Admin / dashboard shell with sidebar */
+.shell{display:grid;grid-template-columns:248px 1fr;gap:24px;align-items:start}
+@media(max-width:860px){.shell{grid-template-columns:1fr}.sidebar{position:static!important}}
+.sidebar{position:sticky;top:84px;border:1px solid var(--border);border-radius:var(--radius);background:var(--card);padding:10px;box-shadow:var(--shadow)}
+.sidebar .grp{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted-fg);padding:10px 12px 6px;font-weight:700}
+.side-link{display:flex;align-items:center;gap:10px;width:100%;text-align:left;border:0;background:transparent;color:var(--muted-fg);font-weight:600;font-size:14px;padding:10px 12px;border-radius:10px;cursor:pointer;transition:.12s}
+.side-link:hover{background:var(--muted);color:var(--fg)}
+.side-link.active{background:color-mix(in srgb,var(--primary) 16%,transparent);color:var(--primary)}
+.side-link .ic{width:20px;text-align:center;font-size:15px}
+.side-link .cnt{margin-left:auto;background:var(--danger);color:#fff;border-radius:999px;font-size:11px;font-weight:700;padding:1px 7px;min-width:18px;text-align:center}
+
+/* KPI cards with gradient top accent */
+.kpi{position:relative;overflow:hidden}
+.kpi:before{content:"";position:absolute;left:0;top:0;height:3px;width:100%;background:linear-gradient(90deg,var(--primary),var(--accent))}
+
+/* Page header + toolbar */
+.pagehead{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:12px;margin-bottom:20px}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.subtle{font-size:12px;color:var(--muted-fg)}
+
+/* Toggle switch */
+.switch{width:44px;height:25px;border-radius:999px;background:var(--border);position:relative;cursor:pointer;transition:.15s;border:0;flex:none}
+.switch.on{background:var(--primary)}
+.switch i{position:absolute;top:3px;left:3px;width:19px;height:19px;border-radius:50%;background:#fff;transition:.15s}
+.switch.on i{left:22px}
+
+/* Empty state */
+.empty{padding:46px 20px;text-align:center;color:var(--muted-fg);border:1px dashed var(--border);border-radius:12px}
+
+/* Trust strip */
+.trust{display:flex;gap:34px;flex-wrap:wrap;justify-content:center;align-items:center;opacity:.7}
+.trust span{font-weight:800;font-size:16px;letter-spacing:.02em}
+
+/* Custom scrollbar */
+*::-webkit-scrollbar{width:11px;height:11px}
+*::-webkit-scrollbar-thumb{background:var(--border);border-radius:999px;border:3px solid var(--bg)}
+*::-webkit-scrollbar-thumb:hover{background:var(--muted-fg)}
+
 </style>
 </head>
 <body>
@@ -335,14 +390,21 @@ const STATUS_BADGE={APPLIED:"gray",ADMIN_REVIEW:"warning",ORG_REVIEW:"warning",S
 /* ============================================================================
    STORE — localStorage-backed "database"
    ========================================================================== */
-const DB_KEY="infinity_interns_db_v1";
+const DB_KEY="infinity_interns_db_v2";
 const SESSION_KEY="infinity_interns_session";
 const Store={
   data:null,
   load(){
     try{this.data=JSON.parse(localStorage.getItem(DB_KEY));}catch(e){this.data=null;}
-    if(!this.data){this.seed();}
+    if(!this.data){this.seed();}else{this.migrate();}
     return this.data;
+  },
+  // Forward-compatible defaults for data created by older versions.
+  migrate(){
+    const d=this.data;let changed=false;
+    ["certRequests","auditLogs"].forEach(k=>{if(!Array.isArray(d[k])){d[k]=[];changed=true;}});
+    if(!d.settings){d.settings={requireCertApproval:true,autoApproveInternships:false};changed=true;}
+    if(changed)this.save();
   },
   save(){localStorage.setItem(DB_KEY,JSON.stringify(this.data));},
   reset(){localStorage.removeItem(DB_KEY);localStorage.removeItem(SESSION_KEY);this.data=null;this.load();},
@@ -361,7 +423,9 @@ const Store={
         bio:"Full-stack enthusiast. Love building products.",skills:["JavaScript","React","Node.js","PostgreSQL"],
         resumeUrl:"https://example.com/resume.pdf",githubUrl:"https://github.com/aarav",linkedinUrl:"https://linkedin.com/in/aarav",portfolioUrl:"",
         xp:250,profileCompletion:0,badges:[]}],
-      internships:[],applications:[],certificates:[],verifications:[],notifications:[]
+      internships:[],applications:[],certificates:[],verifications:[],notifications:[],
+      certRequests:[],auditLogs:[],
+      settings:{requireCertApproval:true,autoApproveInternships:false}
     };
     // sample organizations + internships
     const sampleOrgs=[["QuantML","AI Research","Hyderabad"],["Fortress Security","Cyber Security","Pune"],
@@ -392,6 +456,28 @@ const Store={
         orgId:find(org),domain,branch,workMode:mode,stipendMin:smin,stipendMax:smax,durationWeeks:wk,
         openings:Math.ceil(Math.random()*4),status:"OPEN",views:Math.floor(Math.random()*900),createdAt:nowISO()});
     });
+
+    // ── Demo lifecycle data so admin queues are populated on first load ──
+    const fsIns=d.internships.find(i=>i.title==="Full Stack Developer Intern");
+    const dvIns=d.internships.find(i=>i.title==="DevOps Engineering Intern");
+    const mkApp=(ins,status,extra)=>({id:uid("app"),studentId:stuId,internshipId:ins.id,status,
+      coverLetter:"Excited to contribute and learn!",resumeUrl:d.students[0].resumeUrl,githubUrl:d.students[0].githubUrl,
+      appliedAt:nowISO(),history:[{from:null,to:"APPLIED",actorId:stuUserId,at:nowISO()}],
+      tasks:[],attendance:[],reports:[],feedback:[],...(extra||{})});
+    // 1) A COMPLETED internship awaiting admin certificate approval (org requested it)
+    const appDone=mkApp(fsIns,"COMPLETED",{finalGrade:"A_PLUS",finalScore:94,startedAt:nowISO(),completedAt:nowISO()});
+    appDone.history.push({from:"COMPLETION_APPROVAL",to:"COMPLETED",note:"Completion approved by admin",actorId:adminId,at:nowISO()});
+    appDone.tasks.push({id:uid("tsk"),title:"Capstone project",status:"APPROVED",score:95,weekNumber:12,submittedAt:nowISO(),reviewedAt:nowISO()});
+    d.applications.push(appDone);
+    d.certRequests.push({id:uid("creq"),applicationId:appDone.id,studentId:stuId,internshipId:fsIns.id,
+      requestedBy:orgUserId,status:"PENDING",note:"Intern exceeded expectations across all milestones.",certId:null,createdAt:nowISO()});
+    // 2) An ONGOING internship so the student workspace has live content
+    const appLive=mkApp(dvIns,"ONGOING",{selectedAt:nowISO(),startedAt:nowISO()});
+    appLive.attendance.push({date:new Date().toISOString().slice(0,10),present:true,hours:8});
+    appLive.reports.push({id:uid("rep"),weekNumber:1,summary:"Set up CI pipeline and wrote first Dockerfile.",hoursLogged:38,blockers:"",at:nowISO()});
+    d.applications.push(appLive);
+    d.auditLogs.push({id:uid("aud"),actorId:adminId,actorName:"Platform Admin",action:"system.seed",entity:"Platform",meta:"Demo data initialized",at:nowISO()});
+
     this.data=d;this.save();
     // compute student completion
     const s=this.data.students[0];s.profileCompletion=computeCompletion(s);this.save();
@@ -407,7 +493,8 @@ const Store={
   application(id){return this.data.applications.find(a=>a.id===id);},
   branch(slug){return BRANCHES.find(b=>b.slug===slug);},
   domain(slug){return DOMAINS.find(d=>d.slug===slug);},
-  certificate(id){return this.data.certificates.find(c=>c.id===id);}
+  certificate(id){return this.data.certificates.find(c=>c.id===id);},
+  certRequest(id){return this.data.certRequests.find(r=>r.id===id);}
 };
 function computeCompletion(s){
   const w={branch:15,college:10,gradYear:10,cgpa:10,city:5,bio:10,resumeUrl:15,githubUrl:10,linkedinUrl:10};
@@ -486,6 +573,10 @@ const Workflow={
       if(to==="ONGOING") Gamify.badge(stu,"first-internship");
       if(to==="COMPLETED") Gamify.add(stu,300);
     }
+    // On completion, queue a certificate-generation request for admin approval.
+    if(to==="COMPLETED" && Store.data.settings && Store.data.settings.requireCertApproval){
+      try{ Certs.ensureRequest(app.id, actor.id); }catch(e){}
+    }
     // notifications
     const su=stu&&Store.user(stu.userId);
     if(su) notify(su.id,"Application update","Your application for “"+(ins?ins.title:"an internship")+"” is now "+titleCase(to)+".","#/dashboard");
@@ -545,7 +636,65 @@ const Certs={
   },
   revoke(id,reason){const c=Store.certificate(id);if(!c)throw new Error("Not found");c.status="REVOKED";c.revokeReason=reason;c.revokedAt=nowISO();Store.save();return c;},
   // demo helper: mutate a display field WITHOUT updating the hash -> verification detects tampering
-  simulateTamper(id){const c=Store.certificate(id);if(!c)throw new Error("Not found");c.studentName=c.studentName+" (edited)";Store.save();return c;}
+  simulateTamper(id){const c=Store.certificate(id);if(!c)throw new Error("Not found");c.studentName=c.studentName+" (edited)";Store.save();return c;},
+
+  /* ── Certificate-generation APPROVAL workflow ────────────────────────────
+     A certificate must be requested (by org/admin) and then approved by an
+     admin before it is generated. This gives admins explicit approval access
+     over certificate issuance. */
+  ensureRequest(appId,byUserId){
+    const app=Store.application(appId);if(!app)return null;
+    if(app.certificateId)return null;
+    if(Store.data.certRequests.find(r=>r.applicationId===appId&&r.status==="PENDING"))return null;
+    const req={id:uid("creq"),applicationId:appId,studentId:app.studentId,internshipId:app.internshipId,
+      requestedBy:byUserId,status:"PENDING",note:"Auto-created on completion",certId:null,createdAt:nowISO()};
+    Store.data.certRequests.push(req);Store.save();
+    Store.data.users.filter(x=>x.roles.includes("ADMIN")).forEach(adm=>notify(adm.id,"Certificate approval needed","A completed internship is awaiting certificate generation approval.","#/admin"));
+    return req;
+  },
+  request(appId,byUserId,note){
+    const app=Store.application(appId);if(!app)throw new Error("Application not found");
+    if(!["COMPLETED","COMPLETION_APPROVAL"].includes(app.status))throw new Error("Only completed internships can request a certificate");
+    if(app.certificateId)throw new Error("Certificate already issued");
+    if(Store.data.certRequests.find(r=>r.applicationId===appId&&r.status==="PENDING"))throw new Error("A request is already pending for this internship");
+    const req={id:uid("creq"),applicationId:appId,studentId:app.studentId,internshipId:app.internshipId,
+      requestedBy:byUserId,status:"PENDING",note:note||"",certId:null,createdAt:nowISO()};
+    Store.data.certRequests.push(req);Store.save();
+    const ins=Store.internship(app.internshipId);
+    Store.data.users.filter(x=>x.roles.includes("ADMIN")).forEach(adm=>notify(adm.id,"Certificate approval needed","“"+(ins?ins.title:"An internship")+"” awaits certificate approval.","#/admin"));
+    return req;
+  },
+  approveRequest(reqId,adminId){
+    const req=Store.certRequest(reqId);if(!req)throw new Error("Request not found");
+    if(req.status!=="PENDING")throw new Error("Request already "+req.status.toLowerCase());
+    const app=Store.application(req.applicationId);if(!app)throw new Error("Application missing");
+    if(app.status==="COMPLETION_APPROVAL")throw new Error("Approve completion in the Workflow tab first");
+    if(app.status!=="COMPLETED")throw new Error("Application is not in COMPLETED state");
+    const cert=this.issueForApplication(req.applicationId,adminId);
+    req.status="APPROVED";req.certId=cert.id;req.decidedBy=adminId;req.decidedAt=nowISO();Store.save();
+    return cert;
+  },
+  rejectRequest(reqId,adminId,reason){
+    const req=Store.certRequest(reqId);if(!req)throw new Error("Request not found");
+    if(req.status!=="PENDING")throw new Error("Request already "+req.status.toLowerCase());
+    req.status="REJECTED";req.decidedBy=adminId;req.decidedAt=nowISO();
+    req.note=(req.note?req.note+" | ":"")+"Declined: "+(reason||"no reason given");Store.save();
+    const stu=Store.student(req.studentId),su=stu&&Store.user(stu.userId);
+    if(su)notify(su.id,"Certificate request declined","Reason: "+(reason||"not specified"),"#/dashboard");
+    return req;
+  }
+};
+
+/* ============================================================================
+   AUDIT LOG — append-only record of privileged actions
+   ========================================================================== */
+const Audit={
+  log(actor,action,entity,meta){
+    Store.data.auditLogs=Store.data.auditLogs||[];
+    Store.data.auditLogs.push({id:uid("aud"),actorId:actor&&actor.id||null,actorName:(actor&&actor.fullName)||"system",
+      action,entity:entity||"",meta:meta||"",at:nowISO()});
+    Store.save();
+  }
 };
 
 /* ============================================================================
@@ -790,6 +939,11 @@ function viewLanding(){
 
   <section class="block alt"><div class="container grid g4">
     ${stats.map(([n,l],i)=>`<div class="stat center reveal" style="animation-delay:${i*.05}s"><div class="num gradient-text">${n}</div><div class="lbl">${l}</div></div>`).join("")}
+  </div></section>
+
+  <section style="padding:36px 0;border-bottom:1px solid var(--border)"><div class="container">
+    <p class="center subtle mb16" style="text-transform:uppercase;letter-spacing:.12em">Trusted by teams hiring engineering talent</p>
+    <div class="trust">${["TechNova","QuantML","Fortress","BuildRight","VoltEdge","PixelCraft"].map(n=>`<span class="gradient-text">${n}</span>`).join("")}</div>
   </div></section>
 
   <section class="block"><div class="container">
@@ -1154,23 +1308,48 @@ function viewCertificates(){
   </div>`;
 }
 function certificateCard(c){
+  const verifyUrl="infinityinterns.com/verify/"+c.certificateId;
+  const revoked=c.status==="REVOKED";
   return `<div class="cert mt24" id="cert_${c.id}">
-    <div class="seal">VERIFIED<br>∞<br>INFINITY</div>
-    <div class="badge">${titleCase(c.type)}</div>
-    <h2 class="mt16" style="font-size:14px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted-fg)">Certificate of Completion</h2>
-    <p class="muted mt8" style="font-size:13px">This certifies that</p>
-    <h1 style="font-size:30px" class="gradient-text">${esc(c.studentName)}</h1>
-    <p class="mt8" style="font-size:14px">has successfully completed <b>${esc(c.title)}</b> ${c.durationWeeks?`(${c.durationWeeks} weeks)`:""} with <b>${esc(c.organizationName)}</b> in <b>${esc(c.domainName)}</b>${c.grade?` · Grade <b>${titleCase(c.grade)}</b>`:""}.</p>
-    <div class="flex between items-end mt24 wrap gap16">
-      <div>
-        <div class="mono" style="font-size:13px"><b>ID:</b> ${c.certificateId}</div>
-        <div class="mono muted" style="font-size:12px"><b>Verify #:</b> ${c.verificationNumber}</div>
-        <div class="mono muted" style="font-size:11px"><b>Hash:</b> ${c.contentHash.slice(0,40)}…</div>
-        <div class="muted" style="font-size:12px">Issued ${fmtDate(c.issueDate)}</div>
-        ${c.status==="REVOKED"?`<div class="badge danger mt8">REVOKED</div>`:""}
-        <div class="flex gap8 mt12"><a class="btn sm outline" href="#/verify/${c.certificateId}">Verify</a><button class="btn sm ghost" data-act="print-cert" data-id="${c.id}">🖨 Print / PDF</button></div>
+    <div class="wm">∞</div>
+    <div class="flex between items-start wrap gap12">
+      <div class="flex items-center gap12">
+        <span style="width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(135deg,var(--primary),var(--accent));color:#fff;font-size:24px;font-weight:800">∞</span>
+        <div><div style="font-weight:800;font-size:16px;letter-spacing:.06em">INFINITY INTERNS™</div><div class="subtle">Verified Digital Credential</div></div>
       </div>
-      <div class="center"><canvas class="qr" width="120" height="120" id="qr_${c.id}"></canvas><div class="muted" style="font-size:10px;margin-top:4px">Scan to verify</div></div>
+      <div class="medal">★<br>VERIFIED<br>${new Date(c.issueDate).getFullYear()}</div>
+    </div>
+
+    <div class="center mt24">
+      <div class="cert-kicker">Certificate of ${titleCase(c.type)}</div>
+      <div class="subtle mt12" style="font-style:italic">This certificate is proudly presented to</div>
+      <div class="cert-name gold mt8">${esc(c.studentName)}</div>
+      <div class="mt16" style="max-width:580px;margin-inline:auto;font-size:14.5px;line-height:1.7">
+        for successfully completing <b>${esc(c.title)}</b>${c.durationWeeks?` over a <b>${c.durationWeeks}-week</b> program`:""} with <b>${esc(c.organizationName)}</b> in the domain of <b>${esc(c.domainName)}</b>${c.grade?`, achieving a performance grade of <b class="gold">${titleCase(c.grade)}</b>`:""}.
+      </div>
+    </div>
+
+    <div class="cert-foot flex between items-end wrap gap24">
+      <div>
+        <div class="sig gold">Aarav&nbsp;Mehta</div>
+        <div class="sig-line">Director · Infinity Interns™</div>
+        <div class="subtle" style="margin-top:10px">Issued ${fmtDate(c.issueDate)}</div>
+      </div>
+      <div class="center">
+        <canvas class="qr" width="118" height="118" id="qr_${c.id}"></canvas>
+        <div class="subtle" style="font-size:10px;margin-top:5px">Scan to verify</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-family:Georgia,serif;font-size:15px;font-weight:700" class="gold">⬡ Authenticity Seal</div>
+        <div class="sig-line mono" style="text-align:right">${c.certificateId}</div>
+        <div class="subtle" style="margin-top:10px">Verify #: ${esc(c.verificationNumber)}</div>
+      </div>
+    </div>
+
+    <div class="mono subtle mt16" style="font-size:10.5px;word-break:break-all">🔐 SHA-256 anti-tamper hash · ${c.contentHash}</div>
+    <div class="flex between items-center mt16 wrap gap8">
+      ${revoked?`<span class="badge danger">⛔ REVOKED — ${esc(c.revokeReason||"")}</span>`:`<span class="badge success">✓ Authentic · verifiable at ${verifyUrl}</span>`}
+      <div class="flex gap8"><a class="btn sm outline" href="#/verify/${c.certificateId}">Verify online</a><button class="btn sm" data-act="print-cert" data-id="${c.id}">🖨 Print / PDF</button></div>
     </div>
   </div>`;
 }
@@ -1218,7 +1397,9 @@ function allowedNext(app,actor){
   });
 }
 function transitionButtons(app,actor){
-  const next=allowedNext(app,actor).filter(t=>!(actor.roles.includes("ORGANIZATION")&&t==="COMPLETION_APPROVAL"&&app.status==="PERFORMANCE_EVALUATION"));
+  const next=allowedNext(app,actor)
+    .filter(t=>t!=="CERTIFICATE_GENERATED") // certificates are produced via issuance/approval only
+    .filter(t=>!(actor.roles.includes("ORGANIZATION")&&t==="COMPLETION_APPROVAL"&&app.status==="PERFORMANCE_EVALUATION"));
   return next.map(to=>`<button class="btn sm ${to==="REJECTED"?"danger":to==="SELECTED"?"success":"outline"}" data-act="transition" data-id="${app.id}" data-to="${to}">${titleCase(to)}</button>`).join(" ");
 }
 
@@ -1281,6 +1462,8 @@ function viewOrg(){
             ${transitionButtons(a,u)}
             ${a.status==="PERFORMANCE_EVALUATION"?`<button class="btn sm" data-act="evaluate" data-id="${a.id}">🎓 Evaluate & approve</button>`:""}
             ${a.feedbackBtn!==false&&["ONGOING","PERFORMANCE_EVALUATION"].includes(a.status)?`<button class="btn sm ghost" data-act="add-feedback" data-id="${a.id}">💬 Feedback</button>`:""}
+            ${a.status==="COMPLETED"&&!a.certificateId&&!Store.data.certRequests.find(r=>r.applicationId===a.id&&r.status==="PENDING")?`<button class="btn sm success" data-act="request-cert" data-id="${a.id}">🏅 Request certificate</button>`:""}
+            ${a.certificateId?`<span class="badge success">✓ Certified</span>`:(Store.data.certRequests.find(r=>r.applicationId===a.id&&r.status==="PENDING")?`<span class="badge warning">⏳ Certificate requested</span>`:"")}
           </div>
           ${a.coverLetter?`<p class="muted mt12" style="font-size:13px">“${esc(a.coverLetter)}”</p>`:""}
         </div>`;}).join(""):`<p class="muted mt16">No applicants yet.</p>`}`;
@@ -1302,12 +1485,38 @@ function viewOrg(){
    ADMIN DASHBOARD
    ========================================================================== */
 let adminTab="overview";
+let adminSearch="";
 function viewAdmin(){
   const g=requireRole("ADMIN","Admin");if(g.fail)return g.fail;
   const u=Session.current,D=Store.data;
-  const tabBtn=(id,label,n)=>`<button class="${adminTab===id?"active":""}" data-act="admin-tab" data-tab="${id}">${label}${n?` <span class="badge gray">${n}</span>`:""}</button>`;
+  D.certRequests=D.certRequests||[];D.auditLogs=D.auditLogs||[];D.settings=D.settings||{requireCertApproval:true,autoApproveInternships:false};
   const pendingIns=D.internships.filter(i=>i.status==="PENDING_APPROVAL");
+  const pendingReq=D.certRequests.filter(r=>r.status==="PENDING");
   const adminApps=D.applications.filter(a=>["APPLIED","ADMIN_REVIEW","COMPLETION_APPROVAL","COMPLETED"].includes(a.status));
+  const bar=(label,n,max)=>`<div class="mb8"><div class="flex between" style="font-size:12px"><span>${label}</span><b>${n}</b></div><div class="progress" style="height:8px"><i style="width:${Math.round(n/Math.max(1,max)*100)}%"></i></div></div>`;
+  const sName=(stuId)=>{const s=Store.student(stuId);const usr=s&&Store.user(s.userId);return usr?usr.fullName:"—";};
+
+  const nav=[
+    ["overview","Overview","📊",0],
+    ["certreq","Certificate Approvals","🏅",pendingReq.length],
+    ["internships","Internship Approvals","💼",pendingIns.length],
+    ["workflow","Application Workflow","🔁",adminApps.length],
+    ["orgs","Organizations","🏢",0],
+    ["users","Users","👥",0],
+    ["certs","Certificates","📜",0],
+    ["audit","Audit Log","🧾",0],
+    ["settings","Settings","⚙️",0]
+  ];
+  const titles={overview:["Platform Overview","Key metrics across the whole platform"],
+    certreq:["Certificate Approvals","Review and approve certificate generation requests"],
+    internships:["Internship Approvals","Approve or reject organization postings"],
+    workflow:["Application Workflow","Move applications through admin review gates"],
+    orgs:["Organizations","Verify and manage organization accounts"],
+    users:["User Management","Search, suspend and reactivate accounts"],
+    certs:["Certificate Registry","All issued credentials"],
+    audit:["Audit Log","Append-only record of privileged actions"],
+    settings:["Platform Settings","Approval policies and data controls"]};
+
   let body="";
   if(adminTab==="overview"){
     const totalApps=D.applications.length;
@@ -1321,49 +1530,107 @@ function viewAdmin(){
     const topDom=Object.entries(domCount).sort((a,b)=>b[1]-a[1]).slice(0,6);
     const maxD=Math.max(1,...topDom.map(d=>d[1]));
     const kpis=[["Students",D.students.length,"🎓"],["Organizations",D.orgs.length,"🏢"],["Open internships",D.internships.filter(i=>i.status==="OPEN").length,"💼"],["Applications",totalApps,"📨"],["Certificates",D.certificates.length,"🏅"],["Verifications",D.verifications.length,"🔎"]];
-    body=`<div class="grid g3">${kpis.map(([l,v,ic])=>`<div class="card pad flex items-center gap16"><div class="ficon" style="margin:0">${ic}</div><div><div style="font-size:24px;font-weight:800">${v}</div><div class="muted" style="font-size:12px">${l}</div></div></div>`).join("")}</div>
+    const pendingTotal=pendingIns.length+pendingReq.length;
+    body=`
+      ${pendingTotal?`<div class="card pad mb24" style="border-left:4px solid var(--warning)"><div class="flex between items-center wrap gap8"><div><b>⏳ ${pendingTotal} item${pendingTotal>1?"s":""} awaiting your approval</b><div class="subtle mt8">${pendingReq.length} certificate request(s) · ${pendingIns.length} internship posting(s)</div></div><div class="flex gap8">${pendingReq.length?`<button class="btn sm" data-act="admin-tab" data-tab="certreq">Review certificates</button>`:""}${pendingIns.length?`<button class="btn sm outline" data-act="admin-tab" data-tab="internships">Review internships</button>`:""}</div></div></div>`:""}
+      <div class="grid g3">${kpis.map(([l,v,ic])=>`<div class="card pad kpi flex items-center gap16"><div class="ficon" style="margin:0">${ic}</div><div><div style="font-size:26px;font-weight:850">${v}</div><div class="muted" style="font-size:12px">${l}</div></div></div>`).join("")}</div>
       <div class="grid g2 mt24">
         <div class="card pad"><div class="muted" style="font-size:13px">Placement rate</div><div style="font-size:30px;font-weight:850">${placement}%</div><div class="progress mt8"><i style="width:${placement}%"></i></div></div>
         <div class="card pad"><div class="muted" style="font-size:13px">Completion rate</div><div style="font-size:30px;font-weight:850">${completion}%</div><div class="progress mt8"><i style="width:${completion}%"></i></div></div>
       </div>
       <div class="grid g2 mt24">
-        <div class="card pad"><h3 style="font-size:16px" class="mb16">Applications by status</h3>${Object.entries(byStatus).sort((a,b)=>b[1]-a[1]).map(([s,n])=>`<div class="mb8"><div class="flex between" style="font-size:12px"><span>${titleCase(s)}</span><b>${n}</b></div><div class="progress" style="height:8px"><i style="width:${n/maxS*100}%"></i></div></div>`).join("")||'<p class="muted">No data</p>'}</div>
-        <div class="card pad"><h3 style="font-size:16px" class="mb16">Top domains by postings</h3>${topDom.map(([d,n])=>`<div class="mb8"><div class="flex between" style="font-size:12px"><span>${Store.domain(d).name}</span><b>${n}</b></div><div class="progress" style="height:8px"><i style="width:${n/maxD*100}%"></i></div></div>`).join("")}</div>
-      </div>`;
-  }else if(adminTab==="approvals"){
-    body=`<h3 style="font-size:18px">Internships awaiting approval (${pendingIns.length})</h3>
-      ${pendingIns.length?`<table class="tbl mt12"><thead><tr><th>Title</th><th>Org</th><th>Domain</th><th></th></tr></thead><tbody>
-      ${pendingIns.map(i=>`<tr><td><b>${esc(i.title)}</b></td><td>${esc(Store.org(i.orgId).companyName)}</td><td class="muted">${Store.domain(i.domain).name}</td>
-        <td style="text-align:right"><button class="btn sm success" data-act="ins-approve" data-id="${i.id}">Approve</button> <button class="btn sm danger" data-act="ins-reject" data-id="${i.id}">Reject</button></td></tr>`).join("")}</tbody></table>`:`<p class="muted mt12">Nothing pending.</p>`}
+        <div class="card pad"><h3 style="font-size:16px" class="mb16">Applications by status</h3>${Object.entries(byStatus).sort((a,b)=>b[1]-a[1]).map(([s,n])=>bar(titleCase(s),n,maxS)).join("")||'<p class="muted">No data</p>'}</div>
+        <div class="card pad"><h3 style="font-size:16px" class="mb16">Top domains by postings</h3>${topDom.map(([d,n])=>bar(Store.domain(d).name,n,maxD)).join("")}</div>
+      </div>
+      <div class="card pad mt24"><h3 style="font-size:16px" class="mb16">Recent activity</h3>${D.auditLogs.slice(-6).reverse().map(l=>`<div class="flex between" style="font-size:13px;padding:6px 0;border-bottom:1px solid var(--border)"><span><b>${esc(l.actorName)}</b> <span class="muted">${esc(l.action)}</span> ${esc(l.meta)}</span><span class="subtle">${fmtDate(l.at)}</span></div>`).join("")||'<p class="muted">No activity yet</p>'}</div>`;
+  }else if(adminTab==="certreq"){
+    const decided=D.certRequests.filter(r=>r.status!=="PENDING");
+    body=`<h3 style="font-size:18px">Pending requests (${pendingReq.length})</h3>
+      <p class="subtle mt8">Approving generates a tamper-proof certificate and notifies the student. Completion must already be admin-approved.</p>
+      ${pendingReq.length?pendingReq.slice().reverse().map(r=>{const app=Store.application(r.applicationId);const ins=Store.internship(r.internshipId);const reqUser=Store.user(r.requestedBy);return `
+        <div class="card pad mt12">
+          <div class="flex between items-center wrap gap8">
+            <div class="flex items-center gap12"><span class="avatar">${esc(initials(sName(r.studentId)))}</span>
+              <div><b>${esc(sName(r.studentId))}</b><div class="subtle">${esc(ins?ins.title:"—")} · ${esc(ins?Store.org(ins.orgId).companyName:"")}</div></div></div>
+            <div class="flex items-center gap8 wrap">
+              ${app&&app.finalGrade?`<span class="badge">Grade ${titleCase(app.finalGrade)}</span>`:""}
+              <span class="badge ${app&&app.status==="COMPLETED"?"success":"warning"}">${app?titleCase(app.status):"—"}</span>
+              <button class="btn sm success" data-act="approve-cert-req" data-id="${r.id}">✓ Approve & generate</button>
+              <button class="btn sm danger" data-act="reject-cert-req" data-id="${r.id}">Decline</button>
+            </div>
+          </div>
+          ${r.note?`<p class="subtle mt12">📝 ${esc(r.note)} <span class="muted">— requested by ${esc(reqUser?reqUser.fullName:"org")} · ${fmtDate(r.createdAt)}</span></p>`:`<p class="subtle mt12 muted">Requested by ${esc(reqUser?reqUser.fullName:"org")} · ${fmtDate(r.createdAt)}</p>`}
+        </div>`;}).join(""):`<div class="empty mt12">No pending certificate requests. 🎉</div>`}
+      ${decided.length?`<div class="divider"></div><h3 style="font-size:16px">Decided (${decided.length})</h3>
+      <table class="tbl mt12"><thead><tr><th>Student</th><th>Internship</th><th>Status</th><th>Certificate</th><th>When</th></tr></thead><tbody>
+      ${decided.slice().reverse().map(r=>{const ins=Store.internship(r.internshipId);const c=r.certId&&Store.certificate(r.certId);return `<tr><td>${esc(sName(r.studentId))}</td><td class="muted">${esc(ins?ins.title:"—")}</td>
+        <td><span class="badge ${r.status==="APPROVED"?"success":"danger"}">${titleCase(r.status)}</span></td>
+        <td class="mono" style="font-size:12px">${c?`<a href="#/verify/${c.certificateId}" style="color:var(--primary)">${c.certificateId}</a>`:"—"}</td><td class="subtle">${fmtDate(r.decidedAt)}</td></tr>`;}).join("")}</tbody></table>`:""}`;
+  }else if(adminTab==="internships"){
+    body=`<h3 style="font-size:18px">Awaiting approval (${pendingIns.length})</h3>
+      ${pendingIns.length?`<table class="tbl mt12"><thead><tr><th>Title</th><th>Org</th><th>Domain</th><th>Stipend</th><th></th></tr></thead><tbody>
+      ${pendingIns.map(i=>`<tr><td><b>${esc(i.title)}</b></td><td>${esc(Store.org(i.orgId).companyName)}</td><td class="muted">${Store.domain(i.domain).name}</td><td class="subtle">${stipend(i.stipendMin,i.stipendMax)}</td>
+        <td style="text-align:right"><button class="btn sm success" data-act="ins-approve" data-id="${i.id}">Approve</button> <button class="btn sm danger" data-act="ins-reject" data-id="${i.id}">Reject</button></td></tr>`).join("")}</tbody></table>`:`<div class="empty mt12">No internships pending approval.</div>`}
       <div class="divider"></div>
-      <h3 style="font-size:18px">Application workflow gates (${adminApps.length})</h3>
-      <p class="muted" style="font-size:13px">Admin moves applications through review gates and final completion approval.</p>
-      ${adminApps.length?adminApps.slice().reverse().map(a=>{const i=Store.internship(a.internshipId),su=Store.user(Store.student(a.studentId).userId);return `<div class="card pad mt12 flex between items-center wrap gap8">
-        <div><b>${esc(su.fullName)}</b> <span class="muted" style="font-size:12px">→ ${esc(i.title)}</span><div><span class="badge ${STATUS_BADGE[a.status]}">${titleCase(a.status)}</span></div></div>
-        <div class="flex gap8 wrap">
-          ${transitionButtons(a,u)}
-          ${a.status==="COMPLETED"?`<button class="btn sm success" data-act="issue-cert" data-id="${a.id}">🏅 Issue certificate</button>`:""}
-        </div></div>`;}).join(""):`<p class="muted mt12">No applications need admin action.</p>`}`;
+      <h3 style="font-size:16px">All internships (${D.internships.length})</h3>
+      <div class="scrollx"><table class="tbl mt12"><thead><tr><th>Title</th><th>Org</th><th>Status</th><th>Applicants</th></tr></thead><tbody>
+      ${D.internships.slice().reverse().map(i=>{const ac=D.applications.filter(a=>a.internshipId===i.id).length;return `<tr><td><b>${esc(i.title)}</b></td><td class="muted">${esc(Store.org(i.orgId).companyName)}</td><td><span class="badge ${i.status==="OPEN"?"success":i.status==="PENDING_APPROVAL"?"warning":"gray"}">${titleCase(i.status)}</span></td><td>${ac}</td></tr>`;}).join("")}</tbody></table></div>`;
+  }else if(adminTab==="workflow"){
+    body=`<p class="subtle">Admin moves applications through review gates (Admin Review → Org Review) and final completion approval. After completion, a certificate approval request is queued automatically.</p>
+      ${adminApps.length?adminApps.slice().reverse().map(a=>{const i=Store.internship(a.internshipId);return `<div class="card pad mt12 flex between items-center wrap gap8">
+        <div><b>${esc(sName(a.studentId))}</b> <span class="muted" style="font-size:12px">→ ${esc(i.title)}</span><div class="mt8"><span class="badge ${STATUS_BADGE[a.status]}">${titleCase(a.status)}</span></div></div>
+        <div class="flex gap8 wrap">${transitionButtons(a,u)}${a.status==="COMPLETED"?`<button class="btn sm" data-act="issue-cert" data-id="${a.id}" title="Generate certificate directly (bypass request queue)">🏅 Issue now</button>`:""}</div></div>`;}).join(""):`<div class="empty mt12">No applications currently need admin action.</div>`}`;
+  }else if(adminTab==="orgs"){
+    body=`<h3 style="font-size:18px">Organizations (${D.orgs.length})</h3>
+      <div class="scrollx"><table class="tbl mt12"><thead><tr><th>Company</th><th>Industry</th><th>City</th><th>Postings</th><th>Verified</th><th></th></tr></thead><tbody>
+      ${D.orgs.map(o=>{const posts=D.internships.filter(i=>i.orgId===o.id).length;return `<tr>
+        <td><b>${esc(o.companyName)}</b></td><td class="muted">${esc(o.industry||"—")}</td><td class="muted">${esc(o.city||"—")}</td><td>${posts}</td>
+        <td>${o.verified?'<span class="badge success">Verified</span>':'<span class="badge warning">Unverified</span>'}</td>
+        <td style="text-align:right">${o.verified?`<button class="btn sm outline" data-act="unverify-org" data-id="${o.id}">Unverify</button>`:`<button class="btn sm success" data-act="verify-org" data-id="${o.id}">Verify</button>`}</td></tr>`;}).join("")}</tbody></table></div>`;
   }else if(adminTab==="users"){
-    body=`<h3 style="font-size:18px">Users (${D.users.length})</h3>
-      <table class="tbl mt12"><thead><tr><th>Name</th><th>Email</th><th>Roles</th><th>Status</th><th></th></tr></thead><tbody>
-      ${D.users.map(usr=>`<tr><td><b>${esc(usr.fullName)}</b></td><td class="muted">${esc(usr.email)}</td><td>${usr.roles.map(r=>`<span class="badge gray">${r}</span>`).join(" ")}</td>
+    const q=adminSearch.toLowerCase();
+    const list=D.users.filter(usr=>!q||usr.fullName.toLowerCase().includes(q)||usr.email.toLowerCase().includes(q));
+    body=`<form class="flex gap8 mb16" data-form="admin-search" style="max-width:420px"><input class="input" name="q" value="${esc(adminSearch)}" placeholder="Search by name or email…"><button class="btn">Search</button>${adminSearch?`<button type="button" class="btn ghost" data-act="clear-user-search">Clear</button>`:""}</form>
+      <div class="scrollx"><table class="tbl"><thead><tr><th>Name</th><th>Email</th><th>Roles</th><th>Status</th><th></th></tr></thead><tbody>
+      ${list.map(usr=>`<tr><td><div class="flex items-center gap8"><span class="avatar" style="width:28px;height:28px;font-size:11px">${esc(initials(usr.fullName))}</span><b>${esc(usr.fullName)}</b></div></td><td class="muted">${esc(usr.email)}</td><td>${usr.roles.map(r=>`<span class="badge gray">${r}</span>`).join(" ")}</td>
         <td><span class="badge ${usr.status==="ACTIVE"?"success":"danger"}">${usr.status}</span></td>
-        <td style="text-align:right">${usr.roles.includes("ADMIN")?'<span class="muted" style="font-size:12px">—</span>':usr.status==="ACTIVE"?`<button class="btn sm danger" data-act="set-status" data-id="${usr.id}" data-status="SUSPENDED">Suspend</button>`:`<button class="btn sm success" data-act="set-status" data-id="${usr.id}" data-status="ACTIVE">Activate</button>`}</td></tr>`).join("")}</tbody></table>`;
-  }else{
+        <td style="text-align:right">${usr.roles.includes("ADMIN")?'<span class="subtle">—</span>':usr.status==="ACTIVE"?`<button class="btn sm danger" data-act="set-status" data-id="${usr.id}" data-status="SUSPENDED">Suspend</button>`:`<button class="btn sm success" data-act="set-status" data-id="${usr.id}" data-status="ACTIVE">Activate</button>`}</td></tr>`).join("")||`<tr><td colspan="5" class="center muted" style="padding:24px">No users match “${esc(adminSearch)}”.</td></tr>`}</tbody></table></div>`;
+  }else if(adminTab==="certs"){
     const completedNoCert=D.applications.filter(a=>a.status==="COMPLETED");
-    body=`<div class="flex between items-center wrap gap8"><h3 style="font-size:18px">Certificates (${D.certificates.length})</h3>
-      <div class="flex gap8"><button class="btn sm" data-act="manual-cert">+ Manual certificate</button>${completedNoCert.length?`<button class="btn sm outline" data-act="bulk-cert">Bulk issue (${completedNoCert.length})</button>`:""}</div></div>
-      ${D.certificates.length?`<table class="tbl mt12"><thead><tr><th>ID</th><th>Student</th><th>Title</th><th>Status</th><th></th></tr></thead><tbody>
-      ${D.certificates.slice().reverse().map(c=>`<tr><td class="mono" style="font-size:12px">${c.certificateId}</td><td>${esc(c.studentName)}</td><td class="muted">${esc(c.title)}</td>
+    body=`<div class="toolbar mb16"><button class="btn sm" data-act="manual-cert">+ Manual certificate</button>${completedNoCert.length?`<button class="btn sm outline" data-act="bulk-cert">Bulk issue (${completedNoCert.length})</button>`:""}<button class="btn sm ghost" data-act="export-data">⬇ Export data (JSON)</button></div>
+      ${D.certificates.length?`<div class="scrollx"><table class="tbl"><thead><tr><th>ID</th><th>Student</th><th>Title</th><th>Type</th><th>Status</th><th></th></tr></thead><tbody>
+      ${D.certificates.slice().reverse().map(c=>`<tr><td class="mono" style="font-size:12px">${c.certificateId}</td><td>${esc(c.studentName)}</td><td class="muted">${esc(c.title)}</td><td class="subtle">${titleCase(c.type)}</td>
         <td><span class="badge ${c.status==="ISSUED"?"success":"danger"}">${c.status}</span></td>
         <td style="text-align:right"><a class="btn sm ghost" href="#/verify/${c.certificateId}">Verify</a>
-          ${c.status==="ISSUED"?`<button class="btn sm outline" data-act="tamper-cert" data-id="${c.id}" title="Demo: edit a field without updating the hash">Simulate tamper</button> <button class="btn sm danger" data-act="revoke-cert" data-id="${c.id}">Revoke</button>`:""}</td></tr>`).join("")}</tbody></table>`:`<p class="muted mt12">No certificates issued yet.</p>`}`;
+          ${c.status==="ISSUED"?`<button class="btn sm outline" data-act="tamper-cert" data-id="${c.id}" title="Demo: edit a field without updating the hash">Tamper</button> <button class="btn sm danger" data-act="revoke-cert" data-id="${c.id}">Revoke</button>`:""}</td></tr>`).join("")}</tbody></table></div>`:`<div class="empty">No certificates issued yet. Approve a request in Certificate Approvals to generate one.</div>`}`;
+  }else if(adminTab==="audit"){
+    body=`<div class="scrollx"><table class="tbl"><thead><tr><th>When</th><th>Actor</th><th>Action</th><th>Entity</th><th>Detail</th></tr></thead><tbody>
+      ${D.auditLogs.slice().reverse().map(l=>`<tr><td class="subtle">${fmtDate(l.at)}</td><td><b>${esc(l.actorName)}</b></td><td><span class="badge gray">${esc(l.action)}</span></td><td class="muted">${esc(l.entity)}</td><td class="subtle">${esc(l.meta)}</td></tr>`).join("")||`<tr><td colspan="5" class="center muted" style="padding:24px">No audit entries yet.</td></tr>`}</tbody></table></div>`;
+  }else{ // settings
+    const sw=(key,label,desc)=>`<div class="flex between items-center" style="padding:14px 0;border-bottom:1px solid var(--border)"><div><b style="font-size:14px">${label}</b><div class="subtle">${desc}</div></div><button class="switch ${D.settings[key]?"on":""}" data-act="toggle-setting" data-key="${key}"><i></i></button></div>`;
+    body=`<div class="card pad" style="max-width:640px">
+      <h3 style="font-size:16px" class="mb8">Approval policies</h3>
+      ${sw("requireCertApproval","Require certificate approval","When on, completed internships queue a request that an admin must approve before a certificate is generated.")}
+      ${sw("autoApproveInternships","Auto-approve internship postings","When on, organization postings go live immediately without admin review.")}
+      <h3 style="font-size:16px" class="mt24 mb8">Data controls</h3>
+      <div class="toolbar mt8"><button class="btn sm outline" data-act="export-data">⬇ Export all data (JSON)</button><button class="btn sm danger" data-act="reset-demo">↺ Reset demo data</button></div>
+      <p class="subtle mt16">All data is stored locally in your browser (localStorage). Nothing is sent to a server.</p>
+    </div>`;
   }
-  return `<div class="container block" style="padding-top:28px">
-    <h1 style="font-size:26px">Admin Console</h1><p class="muted mt8">Full platform control · approvals · users · certificates · analytics</p>
-    <div class="tabs mt24" style="max-width:680px">${tabBtn("overview","Overview")}${tabBtn("approvals","Approvals",pendingIns.length+adminApps.length||"")}${tabBtn("users","Users")}${tabBtn("certs","Certificates")}</div>
-    <div class="card pad mt16">${body}</div>
+
+  const t=titles[adminTab]||["Admin",""];
+  return `<div class="container block" style="padding-top:24px">
+    <div class="shell">
+      <aside class="sidebar">
+        <div class="grp">Admin Console</div>
+        ${nav.map(([id,label,ic,cnt])=>`<button class="side-link ${adminTab===id?"active":""}" data-act="admin-tab" data-tab="${id}"><span class="ic">${ic}</span><span>${label}</span>${cnt?`<span class="cnt">${cnt}</span>`:""}</button>`).join("")}
+      </aside>
+      <section>
+        <div class="pagehead"><div><h1 style="font-size:24px">${t[0]}</h1><p class="subtle mt8">${t[1]}</p></div>
+          <div class="toolbar"><span class="badge"><span class="dot"></span> Signed in as ${esc(u.fullName)}</span></div></div>
+        <div class="card pad">${body}</div>
+      </section>
+    </div>
   </div>`;
 }
 
@@ -1434,18 +1701,64 @@ function assessmentModal(){openModal(`<h2 style="font-size:20px">⚡ Skill Asses
 function printCert(id){
   const c=Store.certificate(id);if(!c)return;
   const w=window.open("","_blank");
-  const tmp=document.createElement("canvas");tmp.width=160;tmp.height=160;drawQR(tmp,"https://infinityinterns.com/verify/"+c.certificateId+"|"+c.contentHash);
-  w.document.write(`<html><head><title>${c.certificateId}</title><style>body{font-family:Inter,Arial,sans-serif;padding:40px;color:#0f172a}
-    .cert{border:3px solid #6d4aff;border-radius:18px;padding:48px;max-width:720px;margin:auto;text-align:center}
-    .name{font-size:34px;color:#6d4aff;margin:10px 0}.mono{font-family:monospace}h2{letter-spacing:.2em;color:#64748b;font-size:14px}</style></head>
-    <body><div class="cert"><div style="font-size:30px">∞ Infinity Interns™</div><h2>CERTIFICATE OF ${titleCase(c.type).toUpperCase()}</h2>
-    <p>This certifies that</p><div class="name">${esc(c.studentName)}</div>
-    <p>has successfully completed <b>${esc(c.title)}</b> with <b>${esc(c.organizationName)}</b> in <b>${esc(c.domainName)}</b>${c.grade?` · Grade ${titleCase(c.grade)}`:""}.</p>
-    <img src="${tmp.toDataURL()}" width="150" style="margin-top:20px"/>
-    <p class="mono" style="font-size:12px">ID: ${c.certificateId} · Verify#: ${c.verificationNumber}<br>Hash: ${c.contentHash}</p>
-    <p style="color:#64748b">Issued ${fmtDate(c.issueDate)}</p></div>
-    <script>window.onload=()=>window.print()<\/script></body></html>`);
+  if(!w){toast("Pop-up blocked — allow pop-ups to print","warn");return;}
+  const tmp=document.createElement("canvas");tmp.width=180;tmp.height=180;
+  drawQR(tmp,"https://infinityinterns.com/verify/"+c.certificateId+"|"+c.contentHash);
+  const yr=new Date(c.issueDate).getFullYear();
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>${c.certificateId}</title>
+  <style>
+    @page{size:A4 landscape;margin:0}
+    *{box-sizing:border-box;margin:0;font-family:Georgia,'Times New Roman',serif}
+    body{padding:26px;background:#0b1020}
+    .sheet{position:relative;overflow:hidden;width:100%;min-height:540px;background:#fffdf7;color:#1b2238;border-radius:6px;padding:46px 56px}
+    .b1{position:absolute;inset:14px;border:3px solid #c9a227;border-radius:4px}
+    .b2{position:absolute;inset:20px;border:1px solid #c9a227;opacity:.6;border-radius:3px}
+    .wm{position:absolute;right:-20px;bottom:-90px;font-size:360px;color:#6d4aff0d;font-weight:900;line-height:1}
+    .in{position:relative;z-index:2;text-align:center}
+    .brand{display:flex;align-items:center;justify-content:center;gap:10px;font-size:20px;font-weight:700;letter-spacing:.08em}
+    .mk{width:40px;height:40px;border-radius:9px;display:grid;place-items:center;background:linear-gradient(135deg,#6d4aff,#a78bfa);color:#fff;font-size:24px}
+    .kick{letter-spacing:.4em;text-transform:uppercase;font-size:13px;color:#8a7e63;margin-top:26px;font-weight:700}
+    .name{font-size:52px;color:#b8901f;margin:14px 0;font-weight:700}
+    .body{max-width:680px;margin:0 auto;font-size:16px;line-height:1.8}
+    .foot{position:relative;z-index:2;display:flex;justify-content:space-between;align-items:flex-end;margin-top:44px;gap:24px}
+    .sig{font-family:'Segoe Script','Brush Script MT',cursive;font-size:30px;color:#b8901f}
+    .ln{border-top:1.5px solid #1b2238;padding-top:6px;margin-top:4px;font-size:12px;color:#555;min-width:170px}
+    .seal{width:104px;height:104px;border-radius:50%;display:grid;place-items:center;text-align:center;font-size:11px;font-weight:800;color:#5b4a12;
+      background:radial-gradient(circle at 34% 30%,#f5de8b,#c9a227);box-shadow:inset 0 0 0 4px rgba(255,255,255,.4)}
+    .mono{font-family:ui-monospace,Consolas,monospace}
+    .meta{margin-top:18px;font-size:10.5px;color:#777;word-break:break-all}
+  </style></head>
+  <body><div class="sheet">
+    <div class="b1"></div><div class="b2"></div><div class="wm">∞</div>
+    <div class="in">
+      <div class="brand"><span class="mk">∞</span> INFINITY INTERNS&trade;</div>
+      <div class="kick">Certificate of ${titleCase(c.type)}</div>
+      <p style="margin-top:18px;font-style:italic;color:#555">This certificate is proudly presented to</p>
+      <div class="name">${esc(c.studentName)}</div>
+      <p class="body">for successfully completing <b>${esc(c.title)}</b>${c.durationWeeks?` over a <b>${c.durationWeeks}-week</b> program`:""} with <b>${esc(c.organizationName)}</b> in the domain of <b>${esc(c.domainName)}</b>${c.grade?`, achieving a performance grade of <b>${titleCase(c.grade)}</b>`:""}.</p>
+    </div>
+    <div class="foot">
+      <div style="text-align:left"><div class="sig">Aarav&nbsp;Mehta</div><div class="ln">Director · Infinity Interns&trade;</div><div style="font-size:12px;color:#555;margin-top:10px">Issued ${fmtDate(c.issueDate)}</div></div>
+      <div style="text-align:center"><img src="${tmp.toDataURL()}" width="118" height="118"/><div style="font-size:10px;color:#777;margin-top:4px">Scan to verify</div></div>
+      <div style="text-align:right"><div class="seal">★<br>VERIFIED<br>${yr}</div><div class="ln mono" style="text-align:right">${c.certificateId}</div></div>
+    </div>
+    <div class="in meta">Verify #: ${esc(c.verificationNumber)} &nbsp;·&nbsp; SHA-256: ${c.contentHash} &nbsp;·&nbsp; Verify at infinityinterns.com/verify/${c.certificateId}</div>
+  </div>
+  <script>window.onload=function(){setTimeout(function(){window.print();},250);}<\/script>
+  </body></html>`);
   w.document.close();
+}
+
+/* Download the entire local dataset as a JSON backup. */
+function exportData(){
+  try{
+    const blob=new Blob([JSON.stringify(Store.data,null,2)],{type:"application/json"});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement("a");a.href=url;a.download="infinity-interns-export.json";
+    document.body.appendChild(a);a.click();a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+    toast("Data exported as JSON");
+  }catch(e){toast("Export failed: "+e.message,"error");}
 }
 
 /* ============================================================================
@@ -1490,15 +1803,23 @@ document.addEventListener("click",(e)=>{
     case "print-cert":printCert(id);break;
     case "review-task":{const a=Store.application(el.dataset.app);const t=a.tasks.find(x=>x.id===el.dataset.task);t.status=el.dataset.status;t.reviewedAt=nowISO();if(t.status==="APPROVED"){t.score=t.score||90;const stu=Store.student(a.studentId);Gamify.badge(stu,"task-master");}Store.save();toast("Task "+titleCase(t.status));render();break;}
     case "transition":{Workflow.transition(id,el.dataset.to,u,el.dataset.to==="REJECTED"?(prompt("Reason for rejection?")||""):"");toast("Moved to "+titleCase(el.dataset.to));render();break;}
-    case "ins-submit":{const i=Store.internship(id);i.status="PENDING_APPROVAL";Store.save();toast("Submitted for admin approval");render();break;}
+    case "ins-submit":{const i=Store.internship(id);const auto=Store.data.settings&&Store.data.settings.autoApproveInternships;i.status=auto?"OPEN":"PENDING_APPROVAL";if(auto){i.approvedAt=nowISO();Audit.log(u,"internship.autoApprove","Internship",i.title);}Store.save();toast(auto?"Auto-approved & published ✅":"Submitted for admin approval");render();break;}
     case "ins-close":{const i=Store.internship(id);i.status="CLOSED";Store.save();toast("Internship closed");render();break;}
-    case "ins-approve":{const i=Store.internship(id);i.status="OPEN";i.approvedAt=nowISO();Store.save();const ou=Store.org(i.orgId);notify(Store.user(ou.userId).id,"Internship approved ✅","“"+i.title+"” is now live.","#/org");toast("Approved & published");render();break;}
-    case "ins-reject":{const i=Store.internship(id);i.status="DRAFT";Store.save();toast("Sent back to draft");render();break;}
-    case "issue-cert":{const c=Certs.issueForApplication(id,u.id);toast("Certificate "+c.certificateId+" issued 🏅");render();break;}
-    case "bulk-cert":{const done=Store.data.applications.filter(a=>a.status==="COMPLETED");let n=0;done.forEach(a=>{try{Certs.issueForApplication(a.id,u.id);n++;}catch(e){}});toast(n+" certificate(s) issued");render();break;}
-    case "revoke-cert":{Certs.revoke(id,prompt("Reason for revocation?")||"Revoked by admin");toast("Certificate revoked");render();break;}
+    case "ins-approve":{const i=Store.internship(id);i.status="OPEN";i.approvedAt=nowISO();Store.save();Audit.log(u,"internship.approve","Internship",i.title);const ou=Store.org(i.orgId);notify(Store.user(ou.userId).id,"Internship approved ✅","“"+i.title+"” is now live.","#/org");toast("Approved & published");render();break;}
+    case "ins-reject":{const i=Store.internship(id);i.status="DRAFT";Store.save();Audit.log(u,"internship.reject","Internship",i.title);toast("Sent back to draft");render();break;}
+    case "issue-cert":{const c=Certs.issueForApplication(id,u.id);Audit.log(u,"certificate.issue","Certificate",c.certificateId);toast("Certificate "+c.certificateId+" issued 🏅");render();break;}
+    case "bulk-cert":{const done=Store.data.applications.filter(a=>a.status==="COMPLETED");let n=0;done.forEach(a=>{try{Certs.issueForApplication(a.id,u.id);n++;}catch(e){}});Audit.log(u,"certificate.bulkIssue","Certificate",n+" issued");toast(n+" certificate(s) issued");render();break;}
+    case "revoke-cert":{const reason=prompt("Reason for revocation?")||"Revoked by admin";const c=Certs.revoke(id,reason);Audit.log(u,"certificate.revoke","Certificate",c.certificateId+": "+reason);toast("Certificate revoked");render();break;}
     case "tamper-cert":{Certs.simulateTamper(id);toast("Field edited WITHOUT updating hash — try verifying it now","warn");render();break;}
-    case "set-status":{const usr=Store.user(id);usr.status=el.dataset.status;Store.save();toast("User "+el.dataset.status.toLowerCase());render();break;}
+    case "set-status":{const usr=Store.user(id);usr.status=el.dataset.status;Store.save();Audit.log(u,"user.status","User",usr.email+" → "+usr.status);toast("User "+el.dataset.status.toLowerCase());render();break;}
+    case "request-cert":{Certs.request(id,u.id);toast("Certificate requested — sent for admin approval 🏅");render();break;}
+    case "approve-cert-req":{const c=Certs.approveRequest(id,u.id);Audit.log(u,"certificate.approveRequest","CertRequest",c.certificateId);toast("Approved — certificate "+c.certificateId+" generated 🏅");render();break;}
+    case "reject-cert-req":{const reason=prompt("Reason for declining this certificate request?")||"";Certs.rejectRequest(id,u.id,reason);Audit.log(u,"certificate.rejectRequest","CertRequest",reason);toast("Request declined","warn");render();break;}
+    case "verify-org":{const o=Store.org(id);o.verified=true;Store.save();Audit.log(u,"org.verify","Organization",o.companyName);notify(Store.user(o.userId).id,"Organization verified ✅","Your organization is now verified.","#/org");toast(o.companyName+" verified");render();break;}
+    case "unverify-org":{const o=Store.org(id);o.verified=false;Store.save();Audit.log(u,"org.unverify","Organization",o.companyName);toast(o.companyName+" unverified","warn");render();break;}
+    case "toggle-setting":{const k=el.dataset.key;Store.data.settings[k]=!Store.data.settings[k];Store.save();Audit.log(u,"settings.update","Settings",k+"="+Store.data.settings[k]);render();break;}
+    case "export-data":{exportData();break;}
+    case "clear-user-search":{adminSearch="";render();break;}
     case "reset-demo":{if(confirm("Reset all demo data?")){Store.reset();Session.clear();toast("Demo reset");navigate("/");render();}break;}
   }
   }catch(err){toast(err.message,"error");}
@@ -1515,6 +1836,7 @@ document.addEventListener("submit",(e)=>{
     case "login":{const usr=Auth.login(data.email,data.password);toast("Welcome back, "+usr.fullName.split(" ")[0]);navigate(usr.roles.includes("ADMIN")?"/admin":usr.roles.includes("ORGANIZATION")?"/org":"/dashboard");break;}
     case "register":{const usr=Auth.register(data);toast("Account created 🎉");navigate(usr.roles.includes("ORGANIZATION")?"/org":"/dashboard");break;}
     case "search":{catalogFilters.q=data.q||"";catalogFilters.workMode=data.workMode||"";render();break;}
+    case "admin-search":{adminSearch=data.q||"";render();break;}
     case "verify":{if(data.identifier&&data.identifier.trim())navigate("/verify/"+encodeURIComponent(data.identifier.trim()));break;}
     case "apply":{
       const i=Store.internshipBySlug(data.slug);const stu=Store.student(u.studentId);
