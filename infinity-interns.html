@@ -1,0 +1,1561 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Infinity Interns™ — Engineering Internship Platform</title>
+<meta name="description" content="Discover, apply, complete and earn verified internships across 30+ engineering branches and 35+ domains. Single-file demo app." />
+<style>
+/* ─────────────────────────────────────────────────────────────
+   Design tokens (light + dark)
+   ───────────────────────────────────────────────────────────── */
+:root{
+  --bg:#ffffff; --fg:#0f172a; --card:#ffffff; --card-fg:#0f172a;
+  --muted:#f1f5f9; --muted-fg:#64748b; --border:#e2e8f0; --input:#e2e8f0;
+  --primary:#6d4aff; --primary-fg:#ffffff; --accent:#a78bfa; --ring:#6d4aff;
+  --secondary:#f1f5f9; --secondary-fg:#0f172a;
+  --success:#10b981; --warning:#f59e0b; --danger:#ef4444;
+  --radius:14px; --shadow:0 10px 30px -12px rgba(2,6,23,.25);
+  --header-h:64px;
+}
+html[data-theme="dark"]{
+  --bg:#070b18; --fg:#e8edf7; --card:#0e1426; --card-fg:#e8edf7;
+  --muted:#131b30; --muted-fg:#93a1bd; --border:#1e2942; --input:#1e2942;
+  --primary:#8b6dff; --primary-fg:#07091a; --accent:#7c5cff; --ring:#8b6dff;
+  --secondary:#16203a; --secondary-fg:#e8edf7;
+  --shadow:0 18px 50px -18px rgba(0,0,0,.7);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg); color:var(--fg);
+  font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+  line-height:1.55; -webkit-font-smoothing:antialiased;
+}
+a{color:inherit;text-decoration:none}
+h1,h2,h3,h4{margin:0;line-height:1.2;letter-spacing:-.02em}
+p{margin:0}
+img{max-width:100%}
+button{font-family:inherit;cursor:pointer}
+.container{width:100%;max-width:1180px;margin:0 auto;padding:0 20px}
+.muted{color:var(--muted-fg)}
+.center{text-align:center}
+.gradient-text{background:linear-gradient(120deg,var(--primary),var(--accent));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.hidden{display:none !important}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+
+/* Layout helpers */
+.flex{display:flex} .between{justify-content:space-between} .items-center{align-items:center}
+.gap8{gap:8px}.gap12{gap:12px}.gap16{gap:16px}.gap24{gap:24px}
+.wrap{flex-wrap:wrap}.col{flex-direction:column}
+.grid{display:grid;gap:20px}
+.g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+.mt8{margin-top:8px}.mt12{margin-top:12px}.mt16{margin-top:16px}.mt24{margin-top:24px}.mt32{margin-top:32px}.mt40{margin-top:40px}
+.mb8{margin-bottom:8px}.mb16{margin-bottom:16px}.mb24{margin-bottom:24px}
+.fill{flex:1}
+@media(max-width:900px){.g4{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:1fr}.g2{grid-template-columns:1fr}.hide-sm{display:none}}
+@media(max-width:560px){.g4{grid-template-columns:1fr}}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:10px;
+  background:var(--primary);color:var(--primary-fg);font-weight:600;font-size:14px;padding:10px 18px;transition:.15s;white-space:nowrap}
+.btn:hover{filter:brightness(1.08);transform:translateY(-1px)}
+.btn:active{transform:translateY(0)}
+.btn.lg{padding:14px 26px;font-size:16px}
+.btn.sm{padding:7px 13px;font-size:13px}
+.btn.outline{background:transparent;color:var(--fg);border:1px solid var(--border)}
+.btn.outline:hover{background:var(--muted)}
+.btn.ghost{background:transparent;color:var(--fg)}
+.btn.ghost:hover{background:var(--muted)}
+.btn.danger{background:var(--danger);color:#fff}
+.btn.success{background:var(--success);color:#fff}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn-icon{width:40px;height:40px;padding:0;border-radius:10px}
+
+/* Cards */
+.card{background:var(--card);color:var(--card-fg);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow)}
+.card.pad{padding:22px}
+.card.hover{transition:.18s}
+.card.hover:hover{transform:translateY(-3px);border-color:var(--primary)}
+
+/* Badges & chips */
+.badge{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:3px 11px;font-size:12px;font-weight:600;
+  background:color-mix(in srgb,var(--primary) 14%,transparent);color:var(--primary)}
+.badge.gray{background:var(--muted);color:var(--muted-fg)}
+.badge.success{background:color-mix(in srgb,var(--success) 16%,transparent);color:var(--success)}
+.badge.warning{background:color-mix(in srgb,var(--warning) 18%,transparent);color:var(--warning)}
+.badge.danger{background:color-mix(in srgb,var(--danger) 16%,transparent);color:var(--danger)}
+.badge.outline{background:transparent;border:1px solid var(--border);color:var(--fg)}
+.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:999px;padding:7px 14px;font-size:13px;background:var(--card);transition:.15s;cursor:pointer}
+.chip:hover{border-color:var(--primary);color:var(--primary)}
+.chip.active{background:var(--primary);color:var(--primary-fg);border-color:var(--primary)}
+
+/* Inputs */
+label{font-size:13px;font-weight:600;display:block;margin-bottom:6px}
+.input,select,textarea{width:100%;background:var(--bg);border:1px solid var(--input);border-radius:10px;
+  padding:10px 12px;color:var(--fg);font-size:14px;font-family:inherit;outline:none;transition:.15s}
+.input:focus,select:focus,textarea:focus{border-color:var(--ring);box-shadow:0 0 0 3px color-mix(in srgb,var(--ring) 25%,transparent)}
+textarea{resize:vertical;min-height:84px}
+.field{margin-bottom:14px}
+
+/* Header */
+header.site{position:sticky;top:0;z-index:50;height:var(--header-h);display:flex;align-items:center;
+  border-bottom:1px solid var(--border);background:color-mix(in srgb,var(--bg) 80%,transparent);backdrop-filter:blur(12px)}
+.logo{display:flex;align-items:center;gap:9px;font-weight:800;font-size:18px}
+.logo .mark{width:32px;height:32px;border-radius:9px;display:grid;place-items:center;background:linear-gradient(135deg,var(--primary),var(--accent));color:#fff;font-size:18px}
+nav.main{display:flex;gap:22px}
+nav.main a{font-size:14px;font-weight:500;color:var(--muted-fg)}
+nav.main a:hover,nav.main a.active{color:var(--fg)}
+@media(max-width:820px){nav.main{display:none}}
+
+/* Hero */
+.hero{position:relative;overflow:hidden;padding:92px 0 76px;text-align:center}
+.hero .grid-bg{position:absolute;inset:0;background-image:
+  linear-gradient(color-mix(in srgb,var(--border) 60%,transparent) 1px,transparent 1px),
+  linear-gradient(90deg,color-mix(in srgb,var(--border) 60%,transparent) 1px,transparent 1px);
+  background-size:42px 42px;mask-image:radial-gradient(ellipse at center,#000,transparent 72%);opacity:.6}
+.hero h1{font-size:clamp(34px,5.5vw,62px);font-weight:850;max-width:880px;margin:0 auto}
+.hero p.sub{font-size:18px;max-width:640px;margin:18px auto 0;color:var(--muted-fg)}
+.glow{position:absolute;border-radius:50%;filter:blur(90px);opacity:.4;z-index:-1}
+
+/* Sections */
+section.block{padding:74px 0}
+section.alt{background:var(--muted)}
+.section-head{max-width:620px;margin:0 auto 44px;text-align:center}
+.section-head h2{font-size:clamp(26px,3.5vw,38px);font-weight:800}
+.section-head p{margin-top:12px;color:var(--muted-fg)}
+
+/* Stat */
+.stat .num{font-size:34px;font-weight:850}
+.stat .lbl{color:var(--muted-fg);font-size:14px;margin-top:2px}
+
+/* feature icon */
+.ficon{width:46px;height:46px;border-radius:11px;display:grid;place-items:center;font-size:22px;
+  background:color-mix(in srgb,var(--primary) 14%,transparent);color:var(--primary);margin-bottom:14px}
+
+/* progress */
+.progress{height:10px;border-radius:999px;background:var(--muted);overflow:hidden}
+.progress > i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--primary),var(--accent))}
+
+/* table */
+table.tbl{width:100%;border-collapse:collapse;font-size:14px}
+table.tbl th,table.tbl td{text-align:left;padding:11px 12px;border-bottom:1px solid var(--border)}
+table.tbl th{color:var(--muted-fg);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.04em}
+table.tbl tr:hover td{background:var(--muted)}
+
+/* tabs */
+.tabs{display:flex;gap:4px;border:1px solid var(--border);border-radius:12px;padding:4px;background:var(--card);overflow:auto}
+.tabs button{flex:1;border:0;background:transparent;color:var(--muted-fg);font-weight:600;font-size:14px;padding:9px 14px;border-radius:9px;white-space:nowrap}
+.tabs button.active{background:var(--primary);color:var(--primary-fg)}
+
+/* modal */
+.modal-bg{position:fixed;inset:0;z-index:100;background:rgba(2,6,23,.6);backdrop-filter:blur(3px);display:grid;place-items:center;padding:18px}
+.modal{width:100%;max-width:540px;max-height:90vh;overflow:auto;animation:pop .18s ease-out}
+@keyframes pop{from{opacity:0;transform:scale(.96) translateY(8px)}to{opacity:1;transform:none}}
+
+/* toast */
+#toasts{position:fixed;right:18px;bottom:18px;z-index:200;display:flex;flex-direction:column;gap:10px}
+.toast{background:var(--card);border:1px solid var(--border);border-left:4px solid var(--primary);border-radius:10px;
+  padding:12px 16px;box-shadow:var(--shadow);min-width:240px;max-width:340px;animation:pop .2s}
+.toast.success{border-left-color:var(--success)} .toast.error{border-left-color:var(--danger)} .toast.warn{border-left-color:var(--warning)}
+
+/* misc */
+.divider{height:1px;background:var(--border);margin:18px 0}
+.kbd{font-family:ui-monospace,monospace;background:var(--muted);border:1px solid var(--border);border-radius:6px;padding:1px 6px;font-size:12px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--success);display:inline-block}
+.avatar{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;font-weight:700;color:#fff;background:linear-gradient(135deg,var(--primary),var(--accent))}
+.reveal{opacity:0;transform:translateY(14px);animation:rise .6s forwards}
+@keyframes rise{to{opacity:1;transform:none}}
+.timeline{position:relative;padding-left:22px}
+.timeline:before{content:"";position:absolute;left:6px;top:4px;bottom:4px;width:2px;background:var(--border)}
+.timeline .ev{position:relative;padding:0 0 16px 0}
+.timeline .ev:before{content:"";position:absolute;left:-19px;top:5px;width:10px;height:10px;border-radius:50%;background:var(--primary)}
+.cert{position:relative;border:2px solid var(--primary);border-radius:16px;padding:32px;background:
+  radial-gradient(circle at 90% 10%,color-mix(in srgb,var(--primary) 10%,transparent),transparent 40%),var(--card)}
+.cert .seal{position:absolute;top:22px;right:22px;width:74px;height:74px;border-radius:50%;display:grid;place-items:center;
+  border:2px dashed var(--primary);color:var(--primary);font-size:11px;font-weight:800;text-align:center}
+canvas.qr{border-radius:8px;background:#fff;padding:6px}
+.notif-wrap{position:relative}
+.notif-badge{position:absolute;top:-3px;right:-3px;min-width:16px;height:16px;padding:0 4px;border-radius:999px;background:var(--danger);color:#fff;font-size:10px;font-weight:700;display:grid;place-items:center}
+.dropdown{position:absolute;top:48px;right:0;width:320px;max-height:400px;overflow:auto;z-index:60}
+.scrollx{overflow-x:auto}
+.pill-row{display:flex;flex-wrap:wrap;gap:8px}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="modal-root"></div>
+<div id="toasts"></div>
+
+<script>
+"use strict";
+/* ============================================================================
+   Infinity Interns™ — single-file application
+   Everything (data, auth, workflow engine, certificate engine, AI mocks,
+   gamification, dashboards) runs client-side. State persists in localStorage.
+   ========================================================================== */
+
+/* ---- Pure-JS SHA-256 (offline anti-tamper hashing; no Web Crypto needed) ---- */
+const SHA256=(function(){
+  function rrot(n,x){return (x>>>n)|(x<<(32-n));}
+  const K=[0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,
+  0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,
+  0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,
+  0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,
+  0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,
+  0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,
+  0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,
+  0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2];
+  return function(ascii){
+    let h=[0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19];
+    // UTF-8 encode
+    const utf8=unescape(encodeURIComponent(ascii));
+    const words=[];const len=utf8.length;
+    for(let i=0;i<len;i++) words[i>>2]|=utf8.charCodeAt(i)<<((3-(i%4))*8);
+    words[len>>2]|=0x80<<((3-(len%4))*8);
+    words[(((len+8)>>6)+1)*16-1]=len*8;
+    for(let j=0;j<words.length;j+=16){
+      const w=new Array(64);
+      for(let i=0;i<16;i++)w[i]=words[j+i]|0;
+      for(let i=16;i<64;i++){
+        const s0=rrot(7,w[i-15])^rrot(18,w[i-15])^(w[i-15]>>>3);
+        const s1=rrot(17,w[i-2])^rrot(19,w[i-2])^(w[i-2]>>>10);
+        w[i]=(w[i-16]+s0+w[i-7]+s1)|0;
+      }
+      let [a,b,c,d,e,f,g,hh]=h;
+      for(let i=0;i<64;i++){
+        const S1=rrot(6,e)^rrot(11,e)^rrot(25,e);
+        const ch=(e&f)^((~e)&g);
+        const t1=(hh+S1+ch+K[i]+w[i])|0;
+        const S0=rrot(2,a)^rrot(13,a)^rrot(22,a);
+        const maj=(a&b)^(a&c)^(b&c);
+        const t2=(S0+maj)|0;
+        hh=g;g=f;f=e;e=(d+t1)|0;d=c;c=b;b=a;a=(t1+t2)|0;
+      }
+      h=[(h[0]+a)|0,(h[1]+b)|0,(h[2]+c)|0,(h[3]+d)|0,(h[4]+e)|0,(h[5]+f)|0,(h[6]+g)|0,(h[7]+hh)|0];
+    }
+    return h.map(x=>("00000000"+(x>>>0).toString(16)).slice(-8)).join("");
+  };
+})();
+
+/* ---- small helpers ---- */
+const $=(s,r=document)=>r.querySelector(s);
+const $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
+const uid=(p="id")=>p+"_"+Math.random().toString(36).slice(2,10)+Date.now().toString(36).slice(-4);
+const esc=(s="")=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const nowISO=()=>new Date().toISOString();
+const fmtDate=(d)=>d?new Date(d).toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric"}):"—";
+const fmtINR=(n)=>n==null?"—":new Intl.NumberFormat("en-IN",{style:"currency",currency:"INR",maximumFractionDigits:0}).format(n);
+const titleCase=(s="")=>s.replace(/_/g," ").toLowerCase().replace(/\b\w/g,c=>c.toUpperCase());
+const stipend=(a,b)=>(!a&&!b)?"Unpaid / Performance-based":(a&&b)?`${fmtINR(a)} – ${fmtINR(b)}/mo`:`${fmtINR(a||b)}/mo`;
+const initials=(name="")=>name.split(" ").map(w=>w[0]).slice(0,2).join("").toUpperCase();
+const navigate=(path)=>{location.hash="#"+path;};
+function toast(msg,type="success"){
+  const t=document.createElement("div");t.className="toast "+type;t.textContent=msg;
+  $("#toasts").appendChild(t);setTimeout(()=>{t.style.opacity="0";t.style.transition=".3s";setTimeout(()=>t.remove(),300);},3200);
+}
+
+
+/* ============================================================================
+   CATALOGS — 30 branches, 35 domains, skills, badges
+   ========================================================================== */
+const BRANCHES=[
+ ["computer-science","Computer Science Engineering","CSE"],["information-technology","Information Technology","IT"],
+ ["ai-ml","Artificial Intelligence & ML","AIML"],["data-science","Data Science","DS"],
+ ["cyber-security","Cyber Security","CYS"],["cloud-computing","Cloud Computing","CC"],
+ ["electronics-communication","Electronics & Communication","ECE"],["electrical","Electrical Engineering","EE"],
+ ["mechanical","Mechanical Engineering","ME"],["civil","Civil Engineering","CE"],
+ ["chemical","Chemical Engineering","CHE"],["agricultural","Agricultural Engineering","AGRI"],
+ ["biotechnology","Biotechnology","BT"],["biomedical","Biomedical Engineering","BME"],
+ ["environmental","Environmental Engineering","ENV"],["production","Production Engineering","PROD"],
+ ["industrial","Industrial Engineering","IE"],["mechatronics","Mechatronics","MTR"],
+ ["automobile","Automobile Engineering","AUTO"],["aerospace","Aerospace Engineering","AERO"],
+ ["mining","Mining Engineering","MIN"],["petroleum","Petroleum Engineering","PET"],
+ ["robotics","Robotics Engineering","ROB"],["marine","Marine Engineering","MAR"],
+ ["textile","Textile Engineering","TEX"],["food-technology","Food Technology","FT"],
+ ["instrumentation","Instrumentation Engineering","IN"],["renewable-energy","Renewable Energy Engineering","REE"],
+ ["metallurgical","Metallurgical Engineering","MET"],["materials-science","Materials Science Engineering","MSE"]
+].map(([slug,name,code])=>({slug,name,code}));
+
+const DOMAINS=[
+ ["web-development","Web Development","Software"],["frontend-development","Frontend Development","Software"],
+ ["backend-development","Backend Development","Software"],["full-stack-development","Full Stack Development","Software"],
+ ["mobile-app-development","Mobile App Development","Software"],["ui-ux-design","UI/UX Design","Design"],
+ ["graphic-design","Graphic Design","Design"],["ai-engineering","AI Engineering","AI & Data"],
+ ["machine-learning","Machine Learning","AI & Data"],["deep-learning","Deep Learning","AI & Data"],
+ ["generative-ai","Generative AI","AI & Data"],["prompt-engineering","Prompt Engineering","AI & Data"],
+ ["data-analytics","Data Analytics","AI & Data"],["data-science","Data Science","AI & Data"],
+ ["cyber-security","Cyber Security","Security"],["ethical-hacking","Ethical Hacking","Security"],
+ ["cloud-computing","Cloud Computing","Cloud & Infra"],["devops","DevOps","Cloud & Infra"],
+ ["blockchain","Blockchain","Emerging Tech"],["iot","IoT","Emerging Tech"],
+ ["embedded-systems","Embedded Systems","Emerging Tech"],["robotics","Robotics","Emerging Tech"],
+ ["cad-design","CAD Design","Core Engineering"],["autocad","AutoCAD","Core Engineering"],
+ ["structural-engineering","Structural Engineering","Core Engineering"],["quantity-surveying","Quantity Surveying","Core Engineering"],
+ ["gis-remote-sensing","GIS & Remote Sensing","Core Engineering"],["renewable-energy","Renewable Energy","Core Engineering"],
+ ["industrial-automation","Industrial Automation","Core Engineering"],["digital-marketing","Digital Marketing","Business"],
+ ["technical-content-writing","Technical Content Writing","Business"],["research-innovation","Research & Innovation","Business"],
+ ["business-analytics","Business Analytics","Business"],["product-management","Product Management","Business"],
+ ["startup-entrepreneurship","Startup & Entrepreneurship","Business"]
+].map(([slug,name,category])=>({slug,name,category}));
+
+const SKILLS=["JavaScript","TypeScript","React","Next.js","Node.js","NestJS","Python","Django","SQL","PostgreSQL",
+ "MongoDB","Docker","Kubernetes","AWS","TensorFlow","PyTorch","Pandas","Figma","Solidity","C++","Rust","Go",
+ "AutoCAD","SolidWorks","MATLAB","Linux","Git","GraphQL","Redis","Tableau"];
+
+const BADGES=[
+ {slug:"first-application",name:"First Steps",icon:"🎯",desc:"Submitted your first application",xp:50},
+ {slug:"first-internship",name:"Intern Initiate",icon:"🚀",desc:"Started your first internship",xp:200},
+ {slug:"certified",name:"Certified Pro",icon:"🏅",desc:"Earned your first certificate",xp:300},
+ {slug:"perfect-attendance",name:"Always On",icon:"📅",desc:"Logged 5+ attendance days",xp:150},
+ {slug:"task-master",name:"Task Master",icon:"✅",desc:"Got a task approved",xp:120}
+];
+
+/* Application workflow status machine (guarded transitions) */
+const STATUS={APPLIED:"APPLIED",ADMIN_REVIEW:"ADMIN_REVIEW",ORG_REVIEW:"ORG_REVIEW",SHORTLISTED:"SHORTLISTED",
+ UNDER_REVIEW:"UNDER_REVIEW",SELECTED:"SELECTED",ONGOING:"ONGOING",PERFORMANCE_EVALUATION:"PERFORMANCE_EVALUATION",
+ COMPLETION_APPROVAL:"COMPLETION_APPROVAL",COMPLETED:"COMPLETED",CERTIFICATE_GENERATED:"CERTIFICATE_GENERATED",
+ REJECTED:"REJECTED",WITHDRAWN:"WITHDRAWN"};
+const TRANSITIONS={
+ APPLIED:["ADMIN_REVIEW","REJECTED","WITHDRAWN"],
+ ADMIN_REVIEW:["ORG_REVIEW","REJECTED","WITHDRAWN"],
+ ORG_REVIEW:["SHORTLISTED","UNDER_REVIEW","REJECTED","WITHDRAWN"],
+ SHORTLISTED:["UNDER_REVIEW","SELECTED","REJECTED","WITHDRAWN"],
+ UNDER_REVIEW:["SELECTED","REJECTED","WITHDRAWN"],
+ SELECTED:["ONGOING","WITHDRAWN"],
+ ONGOING:["PERFORMANCE_EVALUATION","WITHDRAWN"],
+ PERFORMANCE_EVALUATION:["COMPLETION_APPROVAL","REJECTED"],
+ COMPLETION_APPROVAL:["COMPLETED","REJECTED"],
+ COMPLETED:["CERTIFICATE_GENERATED"],
+ CERTIFICATE_GENERATED:[],REJECTED:[],WITHDRAWN:[]
+};
+const STATUS_BADGE={APPLIED:"gray",ADMIN_REVIEW:"warning",ORG_REVIEW:"warning",SHORTLISTED:"",UNDER_REVIEW:"warning",
+ SELECTED:"",ONGOING:"",PERFORMANCE_EVALUATION:"warning",COMPLETION_APPROVAL:"warning",COMPLETED:"success",
+ CERTIFICATE_GENERATED:"success",REJECTED:"danger",WITHDRAWN:"gray"};
+
+/* ============================================================================
+   STORE — localStorage-backed "database"
+   ========================================================================== */
+const DB_KEY="infinity_interns_db_v1";
+const SESSION_KEY="infinity_interns_session";
+const Store={
+  data:null,
+  load(){
+    try{this.data=JSON.parse(localStorage.getItem(DB_KEY));}catch(e){this.data=null;}
+    if(!this.data){this.seed();}
+    return this.data;
+  },
+  save(){localStorage.setItem(DB_KEY,JSON.stringify(this.data));},
+  reset(){localStorage.removeItem(DB_KEY);localStorage.removeItem(SESSION_KEY);this.data=null;this.load();},
+  seed(){
+    const pw=SHA256("Password@123");
+    const adminId=uid("usr"),orgUserId=uid("usr"),stuUserId=uid("usr");
+    const orgId=uid("org"),stuId=uid("stu");
+    const d={
+      users:[
+        {id:adminId,email:"admin@infinityinterns.com",pass:pw,fullName:"Platform Admin",roles:["ADMIN"],status:"ACTIVE",createdAt:nowISO()},
+        {id:orgUserId,email:"hr@technova.com",pass:pw,fullName:"TechNova HR",roles:["ORGANIZATION"],status:"ACTIVE",orgId,createdAt:nowISO()},
+        {id:stuUserId,email:"student@example.com",pass:pw,fullName:"Aarav Sharma",roles:["STUDENT"],status:"ACTIVE",studentId:stuId,createdAt:nowISO()}
+      ],
+      orgs:[{id:orgId,userId:orgUserId,companyName:"TechNova Labs",industry:"Software",city:"Bengaluru",verified:true,about:"Building developer tools for the next billion engineers."}],
+      students:[{id:stuId,userId:stuUserId,branch:"computer-science",college:"IIT Delhi",gradYear:2027,cgpa:8.6,city:"New Delhi",
+        bio:"Full-stack enthusiast. Love building products.",skills:["JavaScript","React","Node.js","PostgreSQL"],
+        resumeUrl:"https://example.com/resume.pdf",githubUrl:"https://github.com/aarav",linkedinUrl:"https://linkedin.com/in/aarav",portfolioUrl:"",
+        xp:250,profileCompletion:0,badges:[]}],
+      internships:[],applications:[],certificates:[],verifications:[],notifications:[]
+    };
+    // sample organizations + internships
+    const sampleOrgs=[["QuantML","AI Research","Hyderabad"],["Fortress Security","Cyber Security","Pune"],
+      ["BuildRight Infra","Construction","Mumbai"],["VoltEdge","Renewable Energy","Chennai"],["PixelCraft Studio","Design","Remote"]];
+    sampleOrgs.forEach(([name,ind,city])=>{
+      const uId=uid("usr"),oId=uid("org");
+      d.users.push({id:uId,email:"hr@"+name.toLowerCase().replace(/[^a-z]/g,"")+".com",pass:pw,fullName:name+" HR",roles:["ORGANIZATION"],status:"ACTIVE",orgId:oId,createdAt:nowISO()});
+      d.orgs.push({id:oId,userId:uId,companyName:name,industry:ind,city,verified:Math.random()>0.4,about:name+" is hiring driven engineering interns."});
+    });
+    const find=(n)=>d.orgs.find(o=>o.companyName===n).id;
+    const seedIns=[
+      ["Full Stack Developer Intern","full-stack-development","computer-science","REMOTE",15000,25000,12,"TechNova Labs"],
+      ["Machine Learning Research Intern","machine-learning","ai-ml","HYBRID",20000,35000,16,"QuantML"],
+      ["Generative AI Intern","generative-ai","ai-ml","REMOTE",18000,30000,12,"QuantML"],
+      ["Cyber Security Analyst Intern","cyber-security","cyber-security","ONSITE",18000,28000,10,"Fortress Security"],
+      ["Structural Engineering Intern","structural-engineering","civil","ONSITE",12000,18000,8,"BuildRight Infra"],
+      ["Renewable Energy Systems Intern","renewable-energy","electrical","HYBRID",16000,22000,12,"VoltEdge"],
+      ["UI/UX Design Intern","ui-ux-design","computer-science","REMOTE",10000,20000,8,"PixelCraft Studio"],
+      ["Frontend Developer Intern","frontend-development","information-technology","REMOTE",12000,20000,10,"TechNova Labs"],
+      ["DevOps Engineering Intern","devops","cloud-computing","REMOTE",17000,26000,12,"TechNova Labs"],
+      ["Data Analytics Intern","data-analytics","data-science","HYBRID",14000,22000,10,"QuantML"]
+    ];
+    seedIns.forEach(([title,domain,branch,mode,smin,smax,wk,org])=>{
+      d.internships.push({id:uid("int"),slug:title.toLowerCase().replace(/[^a-z0-9]+/g,"-")+"-"+Math.random().toString(36).slice(2,6),
+        title,description:"Work alongside senior engineers on production-grade projects. You'll own features end to end, learn industry best practices, and ship real impact.",
+        responsibilities:"Build and test features; collaborate in sprints; document your work; present a final project.",
+        eligibility:"Open to "+branch.toUpperCase()+" and allied branches. Strong fundamentals and eagerness to learn.",
+        orgId:find(org),domain,branch,workMode:mode,stipendMin:smin,stipendMax:smax,durationWeeks:wk,
+        openings:Math.ceil(Math.random()*4),status:"OPEN",views:Math.floor(Math.random()*900),createdAt:nowISO()});
+    });
+    this.data=d;this.save();
+    // compute student completion
+    const s=this.data.students[0];s.profileCompletion=computeCompletion(s);this.save();
+  },
+  // generic helpers
+  user(id){return this.data.users.find(u=>u.id===id);},
+  userByEmail(e){return this.data.users.find(u=>u.email.toLowerCase()===e.toLowerCase());},
+  student(id){return this.data.students.find(s=>s.id===id);},
+  studentByUser(uid){return this.data.students.find(s=>s.userId===uid);},
+  org(id){return this.data.orgs.find(o=>o.id===id);},
+  internship(id){return this.data.internships.find(i=>i.id===id);},
+  internshipBySlug(s){return this.data.internships.find(i=>i.slug===s);},
+  application(id){return this.data.applications.find(a=>a.id===id);},
+  branch(slug){return BRANCHES.find(b=>b.slug===slug);},
+  domain(slug){return DOMAINS.find(d=>d.slug===slug);},
+  certificate(id){return this.data.certificates.find(c=>c.id===id);}
+};
+function computeCompletion(s){
+  const w={branch:15,college:10,gradYear:10,cgpa:10,city:5,bio:10,resumeUrl:15,githubUrl:10,linkedinUrl:10};
+  let score=0;for(const k in w){if(s[k])score+=w[k];}
+  if(s.skills&&s.skills.length)score=Math.min(100,score+5);
+  return Math.min(100,score);
+}
+
+
+/* ============================================================================
+   SESSION & AUTH
+   ========================================================================== */
+const Session={
+  current:null,
+  load(){try{const id=localStorage.getItem(SESSION_KEY);this.current=id?Store.user(id):null;}catch(e){this.current=null;}return this.current;},
+  set(user){this.current=user;localStorage.setItem(SESSION_KEY,user.id);},
+  clear(){this.current=null;localStorage.removeItem(SESSION_KEY);},
+  is(role){return this.current&&this.current.roles.includes(role);}
+};
+const Auth={
+  register({email,password,fullName,role,companyName,branch}){
+    if(!email||!password||!fullName) throw new Error("All fields are required");
+    if(password.length<8) throw new Error("Password must be at least 8 characters");
+    if(role==="ADMIN") throw new Error("Admin accounts cannot be self-registered");
+    if(Store.userByEmail(email)) throw new Error("An account with this email already exists");
+    const u={id:uid("usr"),email,pass:SHA256(password),fullName,roles:[role],status:"ACTIVE",createdAt:nowISO()};
+    if(role==="STUDENT"){
+      const s={id:uid("stu"),userId:u.id,branch:branch||"",college:"",gradYear:null,cgpa:null,city:"",bio:"",
+        skills:[],resumeUrl:"",githubUrl:"",linkedinUrl:"",portfolioUrl:"",xp:0,profileCompletion:0,badges:[]};
+      s.profileCompletion=computeCompletion(s);Store.data.students.push(s);u.studentId=s.id;
+    }else if(role==="ORGANIZATION"){
+      if(!companyName) throw new Error("Company name is required");
+      const o={id:uid("org"),userId:u.id,companyName,industry:"",city:"",verified:false,about:""};
+      Store.data.orgs.push(o);u.orgId=o.id;
+    }
+    Store.data.users.push(u);Store.save();Session.set(u);return u;
+  },
+  login(email,password){
+    const u=Store.userByEmail(email);
+    if(!u||u.pass!==SHA256(password)) throw new Error("Invalid email or password");
+    if(u.status==="SUSPENDED"||u.status==="BANNED") throw new Error("This account is "+u.status.toLowerCase());
+    Session.set(u);return u;
+  },
+  logout(){Session.clear();navigate("/");}
+};
+
+/* ============================================================================
+   WORKFLOW ENGINE — guarded transitions + audit trail + side effects
+   ========================================================================== */
+const Workflow={
+  can(from,to){return (TRANSITIONS[from]||[]).includes(to);},
+  next(from){return TRANSITIONS[from]||[];},
+  transition(appId,to,actor,note){
+    const app=Store.application(appId);if(!app) throw new Error("Application not found");
+    if(!this.can(app.status,to)) throw new Error(`Illegal transition ${app.status} → ${to}`);
+    // actor authorization
+    const isAdmin=actor.roles.includes("ADMIN");
+    const ins=Store.internship(app.internshipId);
+    const isOrg=actor.orgId&&ins&&ins.orgId===actor.orgId;
+    const isStudent=actor.studentId&&app.studentId===actor.studentId;
+    if(to==="WITHDRAWN"&&!(isStudent||isAdmin)) throw new Error("Only the applicant can withdraw");
+    if(["ADMIN_REVIEW","ORG_REVIEW","COMPLETED"].includes(to)&&!isAdmin) throw new Error("Admin action required");
+    if(["SHORTLISTED","UNDER_REVIEW","SELECTED","ONGOING","PERFORMANCE_EVALUATION","COMPLETION_APPROVAL"].includes(to)&&!(isOrg||isAdmin)) throw new Error("Organization action required");
+    const from=app.status;app.status=to;
+    app.history=app.history||[];app.history.push({from,to,note:note||"",actorId:actor.id,at:nowISO()});
+    const t=nowISO();
+    if(to==="SELECTED"){app.selectedAt=t;}
+    if(to==="ONGOING"){app.startedAt=t;}
+    if(to==="COMPLETED"){app.completedAt=t;}
+    if(to==="REJECTED"){app.rejectedAt=t;app.rejectionNote=note||"";}
+    // gamification side effects
+    const stu=Store.student(app.studentId);
+    if(stu){
+      if(to==="APPLIED") Gamify.add(stu,25);
+      if(to==="SELECTED") Gamify.add(stu,100);
+      if(to==="ONGOING") Gamify.badge(stu,"first-internship");
+      if(to==="COMPLETED") Gamify.add(stu,300);
+    }
+    // notifications
+    const su=stu&&Store.user(stu.userId);
+    if(su) notify(su.id,"Application update","Your application for “"+(ins?ins.title:"an internship")+"” is now "+titleCase(to)+".","#/dashboard");
+    Store.save();return app;
+  }
+};
+
+/* ============================================================================
+   CERTIFICATE ENGINE — issue / verify / revoke / tamper, SHA-256 anti-tamper
+   ========================================================================== */
+function canonical(c){
+  const o={certificateId:c.certificateId,studentName:c.studentName,organizationName:c.organizationName,
+    domainName:c.domainName,title:c.title,durationWeeks:c.durationWeeks||null,grade:c.grade||null,issueDate:c.issueDate};
+  return JSON.stringify(Object.keys(o).sort().reduce((a,k)=>(a[k]=o[k],a),{}));
+}
+const Certs={
+  genId(){const y=new Date().getFullYear();const a="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    let s="";for(let i=0;i<8;i++)s+=a[Math.floor(Math.random()*a.length)];return `INF-${y}-${s}`;},
+  issue({type,studentId,applicationId,studentName,organizationName,domainName,title,durationWeeks,grade,issuedBy}){
+    const c={id:uid("crt"),certificateId:this.genId(),type:type||"INTERNSHIP_COMPLETION",status:"ISSUED",
+      studentId,applicationId:applicationId||null,studentName,organizationName,domainName,title,
+      durationWeeks:durationWeeks||null,grade:grade||null,verificationNumber:uid("vn").replace(/[^a-z0-9]/g,"").slice(0,18),
+      issueDate:nowISO(),issuedBy:issuedBy||null};
+    c.contentHash=SHA256(canonical(c));
+    c.signature=SHA256(c.contentHash+"|infinity-signing-key").slice(0,32); // demo digital signature
+    Store.data.certificates.push(c);
+    const stu=Store.student(studentId);if(stu){Gamify.badge(stu,"certified");if(!stu.certs)stu.certs=[];}
+    Store.save();return c;
+  },
+  issueForApplication(appId,issuedBy){
+    const app=Store.application(appId);if(!app) throw new Error("Application not found");
+    if(app.certificateId) return Store.certificate(app.certificateId);
+    if(app.status!=="COMPLETED") throw new Error("Certificate only for COMPLETED internships");
+    const stu=Store.student(app.studentId),su=Store.user(stu.userId),ins=Store.internship(app.internshipId),org=Store.org(ins.orgId);
+    const c=this.issue({type:"INTERNSHIP_COMPLETION",studentId:stu.id,applicationId:app.id,studentName:su.fullName,
+      organizationName:org.companyName,domainName:Store.domain(ins.domain).name,title:"Internship Completion — "+ins.title,
+      durationWeeks:ins.durationWeeks,grade:app.finalGrade||"A",issuedBy});
+    app.certificateId=c.id;app.status="CERTIFICATE_GENERATED";
+    app.history=app.history||[];app.history.push({from:"COMPLETED",to:"CERTIFICATE_GENERATED",note:"Certificate "+c.certificateId+" issued",actorId:issuedBy,at:nowISO()});
+    Store.save();
+    if(su) notify(su.id,"Certificate issued 🏅","Your certificate "+c.certificateId+" is ready.","#/certificates");
+    return c;
+  },
+  verify(identifier,method){
+    const id=identifier.trim();
+    const c=Store.data.certificates.find(x=>x.certificateId.toLowerCase()===id.toLowerCase()||x.verificationNumber===id);
+    let result;
+    if(!c){result={valid:false,reason:"NOT_FOUND"};}
+    else{
+      const recomputed=SHA256(canonical(c));
+      const tampered=recomputed!==c.contentHash;
+      const revoked=c.status==="REVOKED";
+      result={valid:!tampered&&!revoked,reason:revoked?"REVOKED":tampered?"TAMPERED":"OK",cert:(!tampered&&!revoked)?c:null};
+    }
+    Store.data.verifications.push({id:uid("ver"),certId:c?c.id:null,identifier:id,method:method||"ID",valid:result.valid,at:nowISO()});
+    Store.save();return result;
+  },
+  revoke(id,reason){const c=Store.certificate(id);if(!c)throw new Error("Not found");c.status="REVOKED";c.revokeReason=reason;c.revokedAt=nowISO();Store.save();return c;},
+  // demo helper: mutate a display field WITHOUT updating the hash -> verification detects tampering
+  simulateTamper(id){const c=Store.certificate(id);if(!c)throw new Error("Not found");c.studentName=c.studentName+" (edited)";Store.save();return c;}
+};
+
+/* ============================================================================
+   GAMIFICATION
+   ========================================================================== */
+const Gamify={
+  level(xp){return Math.floor(xp/250)+1;},
+  add(stu,xp){stu.xp=(stu.xp||0)+xp;Store.save();},
+  badge(stu,slug){stu.badges=stu.badges||[];if(!stu.badges.includes(slug)){stu.badges.push(slug);const b=BADGES.find(x=>x.slug===slug);if(b){stu.xp=(stu.xp||0)+b.xp;}Store.save();
+    const su=Store.user(stu.userId);if(su)notify(su.id,"Badge unlocked "+(BADGES.find(x=>x.slug===slug)||{}).icon,"You earned the “"+(BADGES.find(x=>x.slug===slug)||{}).name+"” badge!","#/dashboard");}}
+};
+
+/* ============================================================================
+   AI MOCKS — resume ATS analyzer, recommender, skill assessment
+   ========================================================================== */
+const AI={
+  analyzeResume(stu,targetDomain){
+    let score=20;
+    if(stu.resumeUrl)score+=20; if(stu.githubUrl)score+=12; if(stu.linkedinUrl)score+=8;
+    if(stu.bio&&stu.bio.length>40)score+=10; if(stu.cgpa)score+=8; if(stu.college)score+=6;
+    score+=Math.min(16,(stu.skills||[]).length*3);
+    score=Math.min(98,score);
+    // skill gap vs a domain's "expected" skills (heuristic)
+    const expected=(DOMAIN_SKILLS[targetDomain]||["Git","Communication","Problem Solving"]);
+    const have=new Set((stu.skills||[]));
+    const gaps=expected.filter(s=>!have.has(s));
+    const suggestions=[];
+    if(!stu.resumeUrl)suggestions.push("Upload a resume link to boost ATS parsing.");
+    if(!stu.githubUrl)suggestions.push("Add a GitHub profile with 2–3 pinned projects.");
+    if((stu.skills||[]).length<5)suggestions.push("List at least 5 relevant skills.");
+    if(gaps.length)suggestions.push("Close skill gaps: "+gaps.slice(0,4).join(", ")+".");
+    if(!stu.bio||stu.bio.length<40)suggestions.push("Write a 2-line summary highlighting your strengths.");
+    if(!suggestions.length)suggestions.push("Great profile! Apply to 3 stretch roles this week.");
+    return {atsScore:score,gaps,suggestions};
+  },
+  recommend(stu){
+    const open=Store.data.internships.filter(i=>i.status==="OPEN");
+    const have=new Set(stu.skills||[]);
+    return open.map(i=>{
+      let s=0;if(i.branch===stu.branch)s+=3;
+      const req=DOMAIN_SKILLS[i.domain]||[];req.forEach(r=>{if(have.has(r))s+=1;});
+      return {i,s};
+    }).sort((a,b)=>b.s-a.s).slice(0,6).map(x=>x.i);
+  }
+};
+const DOMAIN_SKILLS={
+ "full-stack-development":["JavaScript","React","Node.js","PostgreSQL","Git"],
+ "frontend-development":["JavaScript","React","Next.js","Figma","Git"],
+ "backend-development":["Node.js","NestJS","PostgreSQL","Redis","Docker"],
+ "machine-learning":["Python","PyTorch","TensorFlow","Pandas","SQL"],
+ "generative-ai":["Python","PyTorch","TensorFlow","Git"],
+ "data-analytics":["Python","SQL","Pandas","Tableau"],
+ "cyber-security":["Linux","Python","Git"],
+ "devops":["Docker","Kubernetes","AWS","Linux","Git"],
+ "ui-ux-design":["Figma","Git"],
+ "structural-engineering":["AutoCAD","SolidWorks","MATLAB"],
+ "renewable-energy":["MATLAB","AutoCAD"]
+};
+const QUIZ=[
+ {q:"Which HTTP method is idempotent and used to fully replace a resource?",a:["POST","PUT","PATCH","CONNECT"],c:1},
+ {q:"Big-O of binary search on a sorted array?",a:["O(n)","O(n log n)","O(log n)","O(1)"],c:2},
+ {q:"In Git, which command stages all changes?",a:["git stage","git add -A","git commit -a","git push"],c:1},
+ {q:"Which is NOT a NoSQL database?",a:["MongoDB","Redis","PostgreSQL","Cassandra"],c:2},
+ {q:"SHA-256 produces a digest of how many bits?",a:["128","160","256","512"],c:2}
+];
+
+/* ============================================================================
+   NOTIFICATIONS
+   ========================================================================== */
+function notify(userId,title,body,link){
+  Store.data.notifications.push({id:uid("ntf"),userId,title,body,link:link||"",read:false,at:nowISO()});
+  Store.save();
+  if(Session.current&&Session.current.id===userId){renderHeaderBits();}
+}
+function myNotifs(){if(!Session.current)return[];return Store.data.notifications.filter(n=>n.userId===Session.current.id).sort((a,b)=>b.at.localeCompare(a.at));}
+
+
+/* ============================================================================
+   UI INFRASTRUCTURE — modal, QR, layout, header, router
+   ========================================================================== */
+let _after=[];
+function afterRender(fn){_after.push(fn);}
+
+function openModal(html){
+  $("#modal-root").innerHTML=`<div class="modal-bg" data-act="modal-backdrop"><div class="modal card pad">${html}</div></div>`;
+}
+function closeModal(){$("#modal-root").innerHTML="";}
+
+/* QR-like verification code rendered deterministically from the content (offline). */
+function drawQR(canvas,text){
+  const n=29,size=canvas.width,m=size/n,ctx=canvas.getContext("2d");
+  ctx.fillStyle="#ffffff";ctx.fillRect(0,0,size,size);ctx.fillStyle="#0b1020";
+  let bits="",seed=text;
+  while(bits.length<n*n){const hsh=SHA256(seed);for(const ch of hsh)bits+=parseInt(ch,16).toString(2).padStart(4,"0");seed=hsh;}
+  let k=0;
+  const inBox=(r,c,R,C)=>(r>=R&&r<R+7&&c>=C&&c<C+7);
+  for(let r=0;r<n;r++)for(let c=0;c<n;c++){
+    if(inBox(r,c,0,0)||inBox(r,c,0,n-7)||inBox(r,c,n-7,0)){
+      let R0=0,C0=0;if(inBox(r,c,0,n-7)){C0=n-7;}else if(inBox(r,c,n-7,0)){R0=n-7;}
+      const rr=r-R0,cc=c-C0,ring=(rr===0||rr===6||cc===0||cc===6),inner=(rr>=2&&rr<=4&&cc>=2&&cc<=4);
+      if(ring||inner)ctx.fillRect(c*m,r*m,m,m);continue;
+    }
+    if(bits[k++]==="1")ctx.fillRect(c*m,r*m,m,m);
+  }
+}
+
+function headerActions(){
+  const u=Session.current;
+  const theme=document.documentElement.getAttribute("data-theme");
+  let right="";
+  if(u){
+    const unread=myNotifs().filter(n=>!n.read).length;
+    const dashLink=u.roles.includes("ADMIN")?"#/admin":u.roles.includes("ORGANIZATION")?"#/org":"#/dashboard";
+    right=`
+      <div class="notif-wrap">
+        <button class="btn-icon btn ghost" data-act="toggle-notif" title="Notifications">🔔${unread?`<span class="notif-badge">${unread}</span>`:""}</button>
+        <div id="notif-dd" class="dropdown card hidden"></div>
+      </div>
+      <div class="notif-wrap">
+        <button class="btn ghost" data-act="toggle-user" style="gap:8px"><span class="avatar" style="width:30px;height:30px;font-size:12px">${esc(initials(u.fullName))}</span><span class="hide-sm">${esc(u.fullName.split(" ")[0])}</span></button>
+        <div id="user-dd" class="dropdown card hidden" style="width:220px">
+          <div style="padding:12px 14px;border-bottom:1px solid var(--border)"><div style="font-weight:700">${esc(u.fullName)}</div><div class="muted" style="font-size:12px">${esc(u.email)}</div><div class="mt8">${u.roles.map(r=>`<span class="badge gray">${r}</span>`).join(" ")}</div></div>
+          <div style="padding:8px">
+            <a class="btn ghost" style="width:100%;justify-content:flex-start" href="${dashLink}">📊 Dashboard</a>
+            ${u.roles.includes("STUDENT")?`<a class="btn ghost" style="width:100%;justify-content:flex-start" href="#/profile">👤 My Profile</a><a class="btn ghost" style="width:100%;justify-content:flex-start" href="#/certificates">🏅 Certificates</a>`:""}
+            <button class="btn ghost" style="width:100%;justify-content:flex-start" data-act="logout">🚪 Log out</button>
+          </div>
+        </div>
+      </div>`;
+  }else{
+    right=`<a class="btn ghost hide-sm" href="#/login">Log in</a><a class="btn" href="#/register">Get started</a>`;
+  }
+  return `<button class="btn-icon btn ghost" data-act="theme" title="Toggle theme">${theme==="dark"?"☀️":"🌙"}</button>${right}`;
+}
+
+function renderHeaderBits(){const el=$("#header-actions");if(el)el.innerHTML=headerActions();}
+
+function header(){
+  const h=location.hash.replace(/^#/,"")||"/";
+  const link=(href,label)=>`<a href="#${href}" class="${h.startsWith(href)&&href!=="/"?"active":(h==="/"&&href==="/"?"active":"")}">${label}</a>`;
+  return `<header class="site"><div class="container flex between items-center">
+    <a class="logo" href="#/"><span class="mark">∞</span><span>Infinity<span class="gradient-text">Interns</span></span></a>
+    <nav class="main">
+      ${link("/","Home")}${link("/internships","Internships")}${link("/verify","Verify")}${link("/leaderboard","Leaderboard")}
+    </nav>
+    <div class="flex items-center gap8" id="header-actions">${headerActions()}</div>
+  </div></header>`;
+}
+
+function footer(){
+  return `<footer style="border-top:1px solid var(--border);margin-top:40px">
+    <div class="container grid g4" style="padding:48px 20px 16px">
+      <div><div class="logo mb8"><span class="mark">∞</span>Infinity<span class="gradient-text">Interns</span></div>
+        <p class="muted" style="font-size:14px;max-width:260px">India's most comprehensive engineering internship platform — discover, apply, complete & earn verified certificates.</p></div>
+      <div><h4 style="font-size:14px" class="mb8">Platform</h4>
+        <p class="mb8"><a class="muted" href="#/internships">Browse Internships</a></p>
+        <p class="mb8"><a class="muted" href="#/leaderboard">Leaderboard</a></p>
+        <p class="mb8"><a class="muted" href="#/verify">Verify Certificate</a></p></div>
+      <div><h4 style="font-size:14px" class="mb8">For Organizations</h4>
+        <p class="mb8"><a class="muted" href="#/register">Post an Internship</a></p>
+        <p class="mb8"><a class="muted" href="#/org">Org Dashboard</a></p></div>
+      <div><h4 style="font-size:14px" class="mb8">Demo accounts</h4>
+        <p class="muted" style="font-size:12.5px">admin@infinityinterns.com<br>hr@technova.com<br>student@example.com<br>pwd: <span class="kbd">Password@123</span></p></div>
+    </div>
+    <div class="container" style="border-top:1px solid var(--border);padding:16px 20px;text-align:center"><span class="muted" style="font-size:12px">© ${new Date().getFullYear()} Infinity Interns™ · Single-file demo · All data stored locally in your browser.</span></div>
+  </footer>`;
+}
+
+function layout(inner){return header()+`<main>${inner}</main>`+footer();}
+
+function notifDropdown(){
+  const list=myNotifs();
+  if(!list.length) return `<div style="padding:18px" class="muted center">No notifications yet</div>`;
+  return `<div style="padding:8px 12px;border-bottom:1px solid var(--border);font-weight:700;display:flex;justify-content:space-between;align-items:center">Notifications <button class="btn ghost sm" data-act="read-all">Mark all read</button></div>`+
+    list.slice(0,20).map(n=>`<a href="${n.link||"#"}" data-act="read-notif" data-id="${n.id}" style="display:block;padding:11px 13px;border-bottom:1px solid var(--border);${n.read?"opacity:.6":""}">
+      <div style="font-weight:600;font-size:13px">${esc(n.title)}</div><div class="muted" style="font-size:12.5px">${esc(n.body)}</div>
+      <div class="muted" style="font-size:11px;margin-top:3px">${fmtDate(n.at)}</div></a>`).join("");
+}
+
+/* ============================================================================
+   ROUTER
+   ========================================================================== */
+function render(){
+  _after=[];
+  const hash=location.hash.replace(/^#/,"")||"/";
+  const parts=hash.split("/").filter(Boolean);
+  let view="";
+  try{
+    switch(parts[0]){
+      case undefined: view=viewLanding(); break;
+      case "internships": view=parts[1]?viewInternshipDetail(parts[1]):viewInternships(); break;
+      case "verify": view=parts[1]?viewVerifyResult(decodeURIComponent(parts.slice(1).join("/"))):viewVerify(); break;
+      case "login": view=viewAuth("login"); break;
+      case "register": view=viewAuth("register"); break;
+      case "dashboard": view=viewStudentDashboard(); break;
+      case "workspace": view=viewWorkspace(parts[1]); break;
+      case "certificates": view=viewCertificates(); break;
+      case "profile": view=viewProfile(); break;
+      case "org": view=viewOrg(); break;
+      case "admin": view=viewAdmin(); break;
+      case "leaderboard": view=viewLeaderboard(); break;
+      default: view=view404();
+    }
+  }catch(e){view=`<div class="container block"><div class="card pad"><h2>Something went wrong</h2><p class="muted mt8">${esc(e.message)}</p></div></div>`;}
+  $("#app").innerHTML=layout(view);
+  closeModal();
+  _after.forEach(fn=>{try{fn();}catch(e){console.error(e);}});
+  window.scrollTo(0,0);
+}
+function view404(){return `<div class="container block center"><h1 style="font-size:64px">404</h1><p class="muted">Page not found.</p><a class="btn mt16" href="#/">Back home</a></div>`;}
+
+/* ============================================================================
+   LANDING PAGE
+   ========================================================================== */
+function viewLanding(){
+  const stats=[["30+","Engineering Branches"],["35+","Internship Domains"],["100%","Verified Certificates"],["1M+","Built to Scale"]];
+  const features=[
+   ["🚀","One-Click Apply","Apply with your resume, portfolio, LinkedIn & GitHub in a single tap."],
+   ["🧠","AI Career Suite","Resume ATS analyzer, skill-gap detection, recommendations & skill assessments."],
+   ["💼","Internship Workspace","Tasks, project submissions, attendance, weekly reports & mentor feedback."],
+   ["🛡️","Tamper-Proof Certificates","SHA-256 anti-tamper hash, QR verification & a blockchain-ready trust layer."],
+   ["🏆","Gamified Growth","XP points, achievement badges, skill milestones & leaderboards."],
+   ["✅","Verified Organizations","Admin-approved internships and a transparent multi-stage review workflow."]];
+  const flow=[["01","Apply","Discover and apply across every engineering branch."],
+   ["02","Get Selected","Admin → organization review, then selection."],
+   ["03","Complete","Finish tasks, log attendance & submit weekly reports."],
+   ["04","Get Certified","Earn a verified, QR-checkable completion certificate."]];
+  return `
+  <section class="hero">
+    <div class="grid-bg"></div>
+    <div class="glow" style="width:420px;height:420px;background:var(--primary);top:-120px;left:50%;transform:translateX(-50%)"></div>
+    <div class="container">
+      <span class="badge reveal" style="animation-delay:.0s">✨ India's most comprehensive internship platform</span>
+      <h1 class="mt16 reveal" style="animation-delay:.05s">Where engineering students <span class="gradient-text">launch their careers</span></h1>
+      <p class="sub reveal" style="animation-delay:.1s">Discover, apply, track and complete internships across 30+ branches and 35+ domains — then earn certified, tamper-proof credentials employers trust.</p>
+      <div class="flex gap12 mt32 reveal" style="justify-content:center;flex-wrap:wrap;animation-delay:.15s">
+        <a class="btn lg" href="#/internships">Explore Internships →</a>
+        <a class="btn lg outline" href="#/register">Post an Internship</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="block alt"><div class="container grid g4">
+    ${stats.map(([n,l],i)=>`<div class="stat center reveal" style="animation-delay:${i*.05}s"><div class="num gradient-text">${n}</div><div class="lbl">${l}</div></div>`).join("")}
+  </div></section>
+
+  <section class="block"><div class="container">
+    <div class="section-head"><h2>A complete internship ecosystem</h2><p>Everything students, organizations, mentors and admins need — in one platform.</p></div>
+    <div class="grid g3">${features.map(([ic,t,d])=>`<div class="card pad hover"><div class="ficon">${ic}</div><h3 style="font-size:18px">${t}</h3><p class="muted mt8" style="font-size:14px">${d}</p></div>`).join("")}</div>
+  </div></section>
+
+  <section class="block alt"><div class="container">
+    <div class="section-head"><h2>From application to certificate</h2><p>A transparent, multi-stage workflow with full status tracking.</p></div>
+    <div class="grid g4">${flow.map(([s,t,d])=>`<div class="card pad"><div style="font-size:34px;font-weight:850;color:color-mix(in srgb,var(--primary) 30%,transparent)">${s}</div><h3 class="mt8" style="font-size:18px">${t}</h3><p class="muted mt8" style="font-size:14px">${d}</p></div>`).join("")}</div>
+  </div></section>
+
+  <section class="block"><div class="container">
+    <div class="section-head"><h2>Built for every engineering branch</h2><p>${BRANCHES.length} disciplines, from CSE to Metallurgy.</p></div>
+    <div class="pill-row" style="justify-content:center">${BRANCHES.map(b=>`<a class="chip" href="#/internships?branch=${b.slug}" data-act="filter-branch" data-slug="${b.slug}"><b style="color:var(--primary)">${b.code}</b> ${b.name}</a>`).join("")}</div>
+  </div></section>
+
+  <section class="block alt"><div class="container">
+    <div class="section-head"><h2>${DOMAINS.length}+ in-demand domains</h2><p>From Web Dev and Generative AI to CAD, GIS and Renewable Energy.</p></div>
+    <div class="grid g4">${DOMAINS.map(d=>`<a class="card pad hover" href="#/internships" data-act="filter-domain" data-slug="${d.slug}" style="padding:14px 16px;display:flex;justify-content:space-between;align-items:center;font-size:14px;font-weight:600">${d.name}<span class="muted">→</span></a>`).join("")}</div>
+  </div></section>
+
+  <section class="block"><div class="container">
+    <div class="card pad center" style="padding:56px 24px;background:radial-gradient(circle at 80% 0,color-mix(in srgb,var(--primary) 14%,transparent),transparent 45%),var(--card)">
+      <div style="font-size:46px">🏅</div>
+      <h2 class="mt8" style="font-size:34px">Ready to launch your career?</h2>
+      <p class="muted mt8" style="max-width:520px;margin-inline:auto">Join thousands of engineering students building verifiable portfolios with Infinity Interns.</p>
+      <div class="flex gap12 mt24" style="justify-content:center;flex-wrap:wrap">
+        <a class="btn lg" href="#/register">Create free account</a>
+        <a class="btn lg outline" href="#/verify">🔎 Verify a certificate</a>
+      </div>
+    </div>
+  </div></section>`;
+}
+
+/* ============================================================================
+   INTERNSHIPS — catalog, detail, apply
+   ========================================================================== */
+let catalogFilters={q:"",domain:"",branch:"",workMode:""};
+function viewInternships(){
+  const f=catalogFilters;
+  let list=Store.data.internships.filter(i=>i.status==="OPEN");
+  if(f.domain)list=list.filter(i=>i.domain===f.domain);
+  if(f.branch)list=list.filter(i=>i.branch===f.branch);
+  if(f.workMode)list=list.filter(i=>i.workMode===f.workMode);
+  if(f.q){const q=f.q.toLowerCase();list=list.filter(i=>i.title.toLowerCase().includes(q)||i.description.toLowerCase().includes(q)||Store.domain(i.domain).name.toLowerCase().includes(q));}
+  const domChips=DOMAINS.slice(0,18);
+  return `<div class="container block" style="padding-top:36px">
+    <h1 style="font-size:34px">Internships</h1>
+    <p class="muted mt8">${list.length} opportunit${list.length===1?"y":"ies"} across ${BRANCHES.length}+ branches and ${DOMAINS.length}+ domains.</p>
+    <form class="card mt16 flex items-center gap8" data-form="search" style="padding:8px 14px">
+      <span class="muted">🔎</span>
+      <input class="input" name="q" value="${esc(f.q)}" placeholder="Search by role, skill or keyword…" style="border:0;box-shadow:none;background:transparent">
+      <select name="workMode" class="input" style="max-width:150px">
+        <option value="">Any mode</option>${["REMOTE","ONSITE","HYBRID"].map(m=>`<option ${f.workMode===m?"selected":""}>${m}</option>`).join("")}
+      </select>
+      <button class="btn sm">Search</button>
+      ${(f.q||f.domain||f.branch||f.workMode)?`<button type="button" class="btn ghost sm" data-act="clear-filters">Clear</button>`:""}
+    </form>
+    <div class="pill-row mt16">
+      <button class="chip ${!f.domain?"active":""}" data-act="set-domain" data-slug="">All</button>
+      ${domChips.map(d=>`<button class="chip ${f.domain===d.slug?"active":""}" data-act="set-domain" data-slug="${d.slug}">${d.name}</button>`).join("")}
+    </div>
+    ${f.branch?`<div class="mt16"><span class="badge">Branch: ${Store.branch(f.branch).name} <button data-act="set-branch" data-slug="" style="border:0;background:none;cursor:pointer;color:inherit">✕</button></span></div>`:""}
+    ${list.length?`<div class="grid g3 mt24">${list.map(internshipCard).join("")}</div>`:`<div class="card pad center mt24" style="padding:60px"><p class="muted">No internships match your filters.</p></div>`}
+  </div>`;
+}
+function internshipCard(i){
+  const org=Store.org(i.orgId),dom=Store.domain(i.domain),br=Store.branch(i.branch);
+  const apps=Store.data.applications.filter(a=>a.internshipId===i.id).length;
+  return `<div class="card pad hover flex col" style="gap:6px">
+    <div class="flex between items-center"><span class="badge gray">${dom.name}</span><span class="badge ${i.workMode==="REMOTE"?"success":"outline"}">${i.workMode}</span></div>
+    <h3 class="mt8" style="font-size:18px">${esc(i.title)}</h3>
+    <div class="flex items-center gap8 muted" style="font-size:14px">🏢 ${esc(org.companyName)} ${org.verified?'<span title="Verified" style="color:var(--primary)">✔</span>':""}</div>
+    <div class="flex wrap gap12 muted mt8" style="font-size:13px"><span>⏱ ${i.durationWeeks} weeks</span><span>📍 ${br?br.code:"All branches"}</span></div>
+    <div style="font-weight:700;font-size:14px" class="mt8">${stipend(i.stipendMin,i.stipendMax)}</div>
+    <div class="divider"></div>
+    <div class="flex between items-center"><span class="muted" style="font-size:12px">👥 ${apps} applicants</span><a class="btn sm outline" href="#/internships/${i.slug}">View & Apply</a></div>
+  </div>`;
+}
+function viewInternshipDetail(slug){
+  const i=Store.internshipBySlug(slug);
+  if(!i) return view404();
+  const org=Store.org(i.orgId),dom=Store.domain(i.domain),br=Store.branch(i.branch);
+  i.views=(i.views||0)+1;Store.save();
+  const apps=Store.data.applications.filter(a=>a.internshipId===i.id).length;
+  const u=Session.current;
+  const stu=u&&u.studentId?Store.student(u.studentId):null;
+  const already=stu&&Store.data.applications.find(a=>a.studentId===stu.id&&a.internshipId===i.id);
+  const reqSkills=DOMAIN_SKILLS[i.domain]||[];
+  return `<div class="container block" style="padding-top:32px">
+    <a class="muted" href="#/internships">← Back to internships</a>
+    <div class="grid" style="grid-template-columns:2fr 1fr;margin-top:16px">
+      <div>
+        <div class="flex gap8 wrap mb8"><span class="badge">${dom.name}</span><span class="badge gray">${i.workMode}</span>${org.verified?'<span class="badge success">Verified org</span>':""}</div>
+        <h1 style="font-size:30px">${esc(i.title)}</h1>
+        <p class="muted mt8">🏢 ${esc(org.companyName)} · ${esc(org.city||"")} · ${br?br.name:"All branches"}</p>
+        <div class="card pad mt24"><h3 style="font-size:16px">About the internship</h3><p class="mt8" style="font-size:14.5px">${esc(i.description)}</p>
+          <h4 class="mt16" style="font-size:14px">Responsibilities</h4><p class="muted mt8" style="font-size:14px">${esc(i.responsibilities)}</p>
+          <h4 class="mt16" style="font-size:14px">Eligibility</h4><p class="muted mt8" style="font-size:14px">${esc(i.eligibility)}</p>
+          ${reqSkills.length?`<h4 class="mt16" style="font-size:14px">Recommended skills</h4><div class="pill-row mt8">${reqSkills.map(s=>`<span class="badge gray">${s}</span>`).join("")}</div>`:""}
+        </div>
+      </div>
+      <div>
+        <div class="card pad" style="position:sticky;top:84px">
+          <div style="font-size:22px;font-weight:800">${stipend(i.stipendMin,i.stipendMax)}</div>
+          <div class="muted" style="font-size:13px">stipend</div>
+          <div class="divider"></div>
+          <div class="flex between mb8"><span class="muted">Duration</span><b>${i.durationWeeks} weeks</b></div>
+          <div class="flex between mb8"><span class="muted">Openings</span><b>${i.openings}</b></div>
+          <div class="flex between mb8"><span class="muted">Work mode</span><b>${i.workMode}</b></div>
+          <div class="flex between mb8"><span class="muted">Applicants</span><b>${apps}</b></div>
+          <div class="flex between"><span class="muted">Views</span><b>${i.views}</b></div>
+          <div class="divider"></div>
+          ${already?`<div class="badge success" style="width:100%;justify-content:center;padding:10px">Applied · ${titleCase(already.status)}</div>`:
+            `<button class="btn lg" style="width:100%" data-act="apply" data-slug="${i.slug}">⚡ One-Click Apply</button>`}
+          <p class="muted center mt12" style="font-size:12px">${u?(stu?"Applies with your saved portfolio":"Switch to a student account to apply"):"Log in as a student to apply"}</p>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+function applyModal(slug){
+  const i=Store.internshipBySlug(slug);const u=Session.current;
+  if(!u){toast("Please log in as a student to apply","warn");navigate("/login");return;}
+  if(!u.studentId){toast("Only student accounts can apply","error");return;}
+  const stu=Store.student(u.studentId);
+  openModal(`<h2 style="font-size:20px">Apply — ${esc(i.title)}</h2>
+    <p class="muted mt8" style="font-size:13px">One-click apply uses your saved portfolio. Tweak anything below.</p>
+    <form data-form="apply" class="mt16"><input type="hidden" name="slug" value="${slug}">
+      <div class="field"><label>Cover letter (optional)</label><textarea name="coverLetter" placeholder="Why are you a great fit?"></textarea></div>
+      <div class="grid g2">
+        <div class="field"><label>Resume URL</label><input class="input" name="resumeUrl" value="${esc(stu.resumeUrl||"")}"></div>
+        <div class="field"><label>GitHub</label><input class="input" name="githubUrl" value="${esc(stu.githubUrl||"")}"></div>
+      </div>
+      <div class="flex gap8" style="justify-content:flex-end"><button type="button" class="btn ghost" data-act="close-modal">Cancel</button><button class="btn">Submit application</button></div>
+    </form>`);
+}
+
+/* ============================================================================
+   VERIFY PORTAL
+   ========================================================================== */
+function viewVerify(){
+  return `<div class="container block center" style="min-height:60vh;display:flex;flex-direction:column;align-items:center;justify-content:center">
+    <div class="ficon" style="width:64px;height:64px;font-size:30px">🛡️</div>
+    <h1 class="mt16" style="font-size:34px">Verify a Certificate</h1>
+    <p class="muted mt8" style="max-width:440px">Enter a Certificate ID (e.g. <span class="kbd">INF-2026-AB12CD34</span>) or verification number. Each certificate carries an anti-tamper SHA-256 hash.</p>
+    <form class="card mt24 flex items-center gap8" data-form="verify" style="padding:8px 14px;width:100%;max-width:460px">
+      <span class="muted">🔎</span>
+      <input class="input" name="identifier" placeholder="Certificate ID or verification number" style="border:0;box-shadow:none;background:transparent">
+      <button class="btn">Verify</button>
+    </form>
+    ${Store.data.certificates.length?`<p class="muted mt16" style="font-size:13px">Tip: a sample issued certificate ID — <a class="kbd" href="#/verify/${Store.data.certificates[0].certificateId}">${Store.data.certificates[0].certificateId}</a></p>`:""}
+  </div>`;
+}
+function viewVerifyResult(identifier){
+  const r=Certs.verify(identifier,identifier.startsWith("INF-")?"ID":"LINK");
+  const copy={OK:"This certificate is authentic and was issued by Infinity Interns.",
+    NOT_FOUND:"No certificate matches this identifier. Please check and try again.",
+    REVOKED:"This certificate has been revoked by the issuing administrator.",
+    TAMPERED:"Integrity check failed — the certificate data does not match its secure hash."};
+  const icon=r.valid?"✅":r.reason==="TAMPERED"?"⚠️":"❌";
+  const c=r.cert;
+  if(c)afterRender(()=>{const cv=$("#vqr");if(cv)drawQR(cv,"https://infinityinterns.com/verify/"+c.certificateId+"|"+c.contentHash);});
+  const fields=c?[["Certificate ID",c.certificateId,true],["Awarded to",c.studentName],["Title",c.title],
+    ["Organization",c.organizationName],["Domain",c.domainName],["Grade",c.grade?titleCase(c.grade):"—"],
+    ["Duration",c.durationWeeks?c.durationWeeks+" weeks":"—"],["Issued on",fmtDate(c.issueDate)],
+    ["Verification #",c.verificationNumber,true],["Content hash",c.contentHash.slice(0,32)+"…",true]]:[];
+  return `<div class="container block center" style="display:flex;flex-direction:column;align-items:center">
+    <div class="card pad" style="max-width:560px;width:100%;text-align:center">
+      <div style="font-size:60px">${icon}</div>
+      <h1 class="mt8" style="font-size:26px">${r.valid?"Verified Certificate":"Verification Failed"}</h1>
+      <p class="muted mt8" style="max-width:360px;margin-inline:auto;font-size:14px">${copy[r.reason]}</p>
+      <span class="badge ${r.valid?"success":"danger"} mt16">${r.reason}</span>
+      ${c?`<div class="mt24" style="text-align:left">${fields.map(([l,v,m])=>`<div class="flex between" style="padding:7px 0;border-bottom:1px solid var(--border)"><span class="muted" style="font-size:13px">${l}</span><span class="${m?"mono":""}" style="font-size:13px;font-weight:600;text-align:right">${esc(v)}</span></div>`).join("")}
+        <div class="center mt16"><canvas class="qr" width="174" height="174" id="vqr"></canvas><div class="muted mt8" style="font-size:11px">Scan/verify code</div></div></div>`:""}
+      <div class="mt24"><a class="btn outline" href="#/verify">Verify another</a></div>
+    </div>
+  </div>`;
+}
+
+
+/* ============================================================================
+   ACCESS GUARDS
+   ========================================================================== */
+function authPrompt(msg){return `<div class="container block center" style="min-height:50vh"><div class="card pad" style="max-width:420px;margin:auto">
+  <div style="font-size:40px">🔒</div><h2 class="mt8">Please log in</h2><p class="muted mt8">${msg||"You need an account to view this page."}</p>
+  <div class="flex gap8 mt16" style="justify-content:center"><a class="btn" href="#/login">Log in</a><a class="btn outline" href="#/register">Sign up</a></div></div></div>`;}
+function roleNotice(label){return `<div class="container block center" style="min-height:50vh"><div class="card pad" style="max-width:440px;margin:auto">
+  <div style="font-size:40px">🚧</div><h2 class="mt8">${label} area</h2><p class="muted mt8">Your current account doesn't have access here. Log in with the right role.</p>
+  <a class="btn mt16" href="#/login">Switch account</a></div></div>`;}
+function requireRole(role,label){if(!Session.current)return{fail:authPrompt()};if(!Session.current.roles.includes(role))return{fail:roleNotice(label)};return{ok:true};}
+
+/* ============================================================================
+   AUTH VIEW
+   ========================================================================== */
+let authRole="STUDENT";
+function viewAuth(mode){
+  const isReg=mode==="register";
+  return `<div class="container block center" style="min-height:70vh;display:flex;flex-direction:column;align-items:center;justify-content:center">
+    <a class="logo mb24" href="#/"><span class="mark">∞</span>Infinity<span class="gradient-text">Interns</span></a>
+    <div class="card pad" style="max-width:420px;width:100%">
+      <h1 style="font-size:22px">${isReg?"Create your account":"Welcome back"}</h1>
+      <p class="muted mt8" style="font-size:14px">${isReg?"Join and start applying in minutes.":"Log in to continue."}</p>
+      ${isReg?`<div class="tabs mt16">
+        <button class="${authRole==="STUDENT"?"active":""}" data-act="auth-role" data-role="STUDENT">🎓 Student</button>
+        <button class="${authRole==="ORGANIZATION"?"active":""}" data-act="auth-role" data-role="ORGANIZATION">🏢 Organization</button>
+      </div>`:""}
+      <form class="mt16" data-form="${isReg?"register":"login"}">
+        ${isReg?`<input type="hidden" name="role" value="${authRole}">
+          <div class="field"><label>${authRole==="ORGANIZATION"?"Contact name":"Full name"}</label><input class="input" name="fullName" required></div>
+          ${authRole==="ORGANIZATION"?`<div class="field"><label>Company name</label><input class="input" name="companyName" required></div>`:
+            `<div class="field"><label>Engineering branch</label><select name="branch"><option value="">Select…</option>${BRANCHES.map(b=>`<option value="${b.slug}">${b.name}</option>`).join("")}</select></div>`}`:""}
+        <div class="field"><label>Email</label><input class="input" type="email" name="email" required value="${isReg?"":"student@example.com"}"></div>
+        <div class="field"><label>Password</label><input class="input" type="password" name="password" required minlength="8" value="${isReg?"":"Password@123"}"></div>
+        <button class="btn" style="width:100%">${isReg?"Create account":"Log in"}</button>
+      </form>
+      <p class="muted center mt16" style="font-size:14px">${isReg?`Already have an account? <a href="#/login" style="color:var(--primary);font-weight:600">Log in</a>`:`New here? <a href="#/register" style="color:var(--primary);font-weight:600">Create account</a>`}</p>
+    </div>
+  </div>`;
+}
+
+/* ============================================================================
+   STUDENT DASHBOARD
+   ========================================================================== */
+function viewStudentDashboard(){
+  const g=requireRole("STUDENT","Student");if(g.fail)return g.fail;
+  const u=Session.current,stu=Store.student(u.studentId);
+  stu.profileCompletion=computeCompletion(stu);Store.save();
+  const apps=Store.data.applications.filter(a=>a.studentId===stu.id);
+  const byStatus={};apps.forEach(a=>byStatus[a.status]=(byStatus[a.status]||0)+1);
+  const certs=Store.data.certificates.filter(c=>c.studentId===stu.id);
+  const recs=AI.recommend(stu);
+  const ai=AI.analyzeResume(stu,stu.branch&&DOMAIN_SKILLS[stu.branch]?stu.branch:(apps[0]?Store.internship(apps[0].internshipId).domain:"full-stack-development"));
+  const stats=[["Profile",stu.profileCompletion+"%","📈"],["XP Points",stu.xp||0,"🔥"],["Level",Gamify.level(stu.xp||0),"🏆"],["Certificates",certs.length,"🏅"]];
+  const pipeline=["APPLIED","UNDER_REVIEW","SHORTLISTED","SELECTED","ONGOING","COMPLETED","CERTIFICATE_GENERATED"];
+  const earnedBadges=(stu.badges||[]).map(s=>BADGES.find(b=>b.slug===s)).filter(Boolean);
+  return `<div class="container block" style="padding-top:28px">
+    <div class="flex between items-center wrap gap12">
+      <div><h1 style="font-size:26px">Welcome back, ${esc(u.fullName.split(" ")[0])} 👋</h1>
+        <p class="muted mt8">🎓 ${stu.branch?Store.branch(stu.branch).name:"Set your branch"} ${stu.college?"· "+esc(stu.college):""}</p></div>
+      <div class="flex gap8"><a class="btn outline" href="#/profile">Edit profile</a><a class="btn" href="#/internships">Find internships</a></div>
+    </div>
+
+    <div class="card pad mt24">
+      <div class="flex between mb8"><b>Profile strength</b><span class="muted">${stu.profileCompletion}%</span></div>
+      <div class="progress"><i style="width:${stu.profileCompletion}%"></i></div>
+      ${stu.profileCompletion<100?`<p class="muted mt8" style="font-size:13px">Complete your profile to unlock better recommendations. <a href="#/profile" style="color:var(--primary)">Finish now →</a></p>`:""}
+    </div>
+
+    <div class="grid g4 mt24">${stats.map(([l,v,ic])=>`<div class="card pad flex items-center gap16"><div class="ficon" style="margin:0">${ic}</div><div><div style="font-size:24px;font-weight:800">${v}</div><div class="muted" style="font-size:12px">${l}</div></div></div>`).join("")}</div>
+
+    <div class="grid mt24" style="grid-template-columns:2fr 1fr">
+      <div class="card pad">
+        <h3 style="font-size:18px">Application Tracker</h3>
+        <div class="grid g4 mt16" style="gap:10px">${pipeline.map(s=>`<div class="card pad center" style="padding:12px"><div style="font-size:22px;font-weight:800">${byStatus[s]||0}</div><div class="muted" style="font-size:11px">${titleCase(s)}</div></div>`).join("")}</div>
+        <div class="divider"></div>
+        ${apps.length?`<table class="tbl"><thead><tr><th>Internship</th><th>Status</th><th></th></tr></thead><tbody>
+          ${apps.slice().reverse().map(a=>{const i=Store.internship(a.internshipId);const active=["SELECTED","ONGOING","PERFORMANCE_EVALUATION"].includes(a.status);return `<tr>
+            <td><b>${esc(i.title)}</b><div class="muted" style="font-size:12px">${esc(Store.org(i.orgId).companyName)}</div></td>
+            <td><span class="badge ${STATUS_BADGE[a.status]}">${titleCase(a.status)}</span></td>
+            <td style="text-align:right">${active?`<a class="btn sm outline" href="#/workspace/${a.id}">Workspace</a>`:a.status==="CERTIFICATE_GENERATED"?`<a class="btn sm" href="#/certificates">Certificate</a>`:`<a class="btn sm ghost" href="#/internships/${i.slug}">View</a>`}</td></tr>`;}).join("")}
+        </tbody></table>`:`<p class="muted center" style="padding:24px">No applications yet. <a href="#/internships" style="color:var(--primary)">Browse internships →</a></p>`}
+      </div>
+
+      <div class="flex col gap24">
+        <div class="card pad">
+          <h3 style="font-size:16px">🧠 AI Resume Analyzer</h3>
+          <div class="flex items-center gap16 mt16"><div style="position:relative;width:84px;height:84px">
+            <svg width="84" height="84" viewBox="0 0 84 84"><circle cx="42" cy="42" r="36" fill="none" stroke="var(--muted)" stroke-width="9"/>
+            <circle cx="42" cy="42" r="36" fill="none" stroke="var(--primary)" stroke-width="9" stroke-linecap="round" stroke-dasharray="${2*Math.PI*36}" stroke-dashoffset="${2*Math.PI*36*(1-ai.atsScore/100)}" transform="rotate(-90 42 42)"/></svg>
+            <div style="position:absolute;inset:0;display:grid;place-items:center;font-weight:800;font-size:18px">${ai.atsScore}</div></div>
+            <div><div style="font-weight:700">ATS Score</div><div class="muted" style="font-size:12px">${ai.atsScore>=75?"Strong":ai.atsScore>=50?"Decent":"Needs work"} profile</div></div></div>
+          <div class="mt16"><b style="font-size:13px">Suggestions</b><ul class="muted" style="font-size:13px;margin:8px 0 0;padding-left:18px">${ai.suggestions.slice(0,3).map(s=>`<li>${esc(s)}</li>`).join("")}</ul></div>
+          <button class="btn sm outline mt16" style="width:100%" data-act="assessment">⚡ Take skill assessment</button>
+        </div>
+        <div class="card pad">
+          <h3 style="font-size:16px">🏆 Badges</h3>
+          ${earnedBadges.length?`<div class="pill-row mt12">${earnedBadges.map(b=>`<span class="chip" title="${esc(b.desc)}">${b.icon} ${b.name}</span>`).join("")}</div>`:`<p class="muted mt8" style="font-size:13px">Earn badges by applying & completing internships.</p>`}
+        </div>
+      </div>
+    </div>
+
+    <div class="card pad mt24">
+      <div class="flex between items-center"><h3 style="font-size:18px">Recommended for you</h3><a class="muted" href="#/internships">View all →</a></div>
+      <div class="grid g3 mt16">${recs.slice(0,3).map(internshipCard).join("")||'<p class="muted">No open internships right now.</p>'}</div>
+    </div>
+  </div>`;
+}
+
+/* ============================================================================
+   INTERNSHIP WORKSPACE
+   ========================================================================== */
+function viewWorkspace(appId){
+  const g=requireRole("STUDENT","Student");if(g.fail)return g.fail;
+  const stu=Store.student(Session.current.studentId);
+  const active=Store.data.applications.filter(a=>a.studentId===stu.id&&["SELECTED","ONGOING","PERFORMANCE_EVALUATION"].includes(a.status));
+  if(!appId){
+    return `<div class="container block" style="padding-top:28px"><h1 style="font-size:26px">Internship Workspace</h1>
+      <p class="muted mt8">Your active internships.</p>
+      ${active.length?`<div class="grid g3 mt24">${active.map(a=>{const i=Store.internship(a.internshipId);return `<a class="card pad hover" href="#/workspace/${a.id}"><span class="badge ${STATUS_BADGE[a.status]}">${titleCase(a.status)}</span><h3 class="mt8" style="font-size:17px">${esc(i.title)}</h3><div class="muted" style="font-size:13px">🏢 ${esc(Store.org(i.orgId).companyName)}</div></a>`;}).join("")}</div>`
+        :`<div class="card pad center mt24" style="padding:50px"><p class="muted">No active internships yet. Once you're selected, your workspace appears here.</p></div>`}</div>`;
+  }
+  const a=Store.application(appId);
+  if(!a||a.studentId!==stu.id)return view404();
+  const i=Store.internship(a.internshipId);
+  a.tasks=a.tasks||[];a.attendance=a.attendance||[];a.reports=a.reports||[];a.feedback=a.feedback||[];
+  const present=a.attendance.filter(x=>x.present).length;
+  return `<div class="container block" style="padding-top:28px">
+    <a class="muted" href="#/dashboard">← Dashboard</a>
+    <div class="flex between items-center wrap gap12 mt8">
+      <div><h1 style="font-size:24px">${esc(i.title)}</h1><p class="muted mt8">🏢 ${esc(Store.org(i.orgId).companyName)} · <span class="badge ${STATUS_BADGE[a.status]}">${titleCase(a.status)}</span></p></div>
+    </div>
+    <div class="grid g4 mt24" style="gap:12px">
+      <div class="card pad center"><div style="font-size:22px;font-weight:800">${a.tasks.length}</div><div class="muted" style="font-size:12px">Tasks submitted</div></div>
+      <div class="card pad center"><div style="font-size:22px;font-weight:800">${a.tasks.filter(t=>t.status==="APPROVED").length}</div><div class="muted" style="font-size:12px">Approved</div></div>
+      <div class="card pad center"><div style="font-size:22px;font-weight:800">${present}</div><div class="muted" style="font-size:12px">Days present</div></div>
+      <div class="card pad center"><div style="font-size:22px;font-weight:800">${a.reports.length}</div><div class="muted" style="font-size:12px">Weekly reports</div></div>
+    </div>
+
+    <div class="grid mt24" style="grid-template-columns:2fr 1fr">
+      <div class="flex col gap24">
+        <div class="card pad">
+          <div class="flex between items-center"><h3 style="font-size:17px">📋 Tasks & Submissions</h3><button class="btn sm" data-act="add-task" data-id="${a.id}">+ Submit task</button></div>
+          ${a.tasks.length?`<div class="mt16 flex col gap8">${a.tasks.map(t=>`<div class="card pad" style="padding:12px"><div class="flex between items-center"><b style="font-size:14px">${esc(t.title)}</b><span class="badge ${t.status==="APPROVED"?"success":t.status==="REJECTED"?"danger":t.status==="REVISION_REQUESTED"?"warning":"gray"}">${titleCase(t.status)}</span></div>
+            ${t.description?`<p class="muted" style="font-size:13px;margin-top:4px">${esc(t.description)}</p>`:""}
+            <div class="muted" style="font-size:12px;margin-top:4px">Week ${t.weekNumber} ${t.submissionUrl?`· <a href="${esc(t.submissionUrl)}" target="_blank" style="color:var(--primary)">link</a>`:""} ${t.score!=null?`· Score ${t.score}/100`:""}</div>
+            ${t.reviewerNote?`<div class="muted" style="font-size:12px;margin-top:4px">💬 ${esc(t.reviewerNote)}</div>`:""}</div>`).join("")}</div>`:`<p class="muted mt16" style="font-size:13px">No tasks submitted yet.</p>`}
+        </div>
+        <div class="card pad">
+          <div class="flex between items-center"><h3 style="font-size:17px">📝 Weekly Reports</h3><button class="btn sm outline" data-act="add-report" data-id="${a.id}">+ Add report</button></div>
+          ${a.reports.length?`<div class="mt16 flex col gap8">${a.reports.sort((x,y)=>x.weekNumber-y.weekNumber).map(r=>`<div class="card pad" style="padding:12px"><b style="font-size:13px">Week ${r.weekNumber}</b> <span class="muted" style="font-size:12px">· ${r.hoursLogged||0}h</span><p class="muted" style="font-size:13px;margin-top:4px">${esc(r.summary)}</p>${r.blockers?`<p style="font-size:12px;color:var(--warning);margin-top:2px">⚠ ${esc(r.blockers)}</p>`:""}</div>`).join("")}</div>`:`<p class="muted mt16" style="font-size:13px">No reports yet.</p>`}
+        </div>
+      </div>
+      <div class="flex col gap24">
+        <div class="card pad">
+          <h3 style="font-size:17px">📅 Attendance</h3>
+          <button class="btn sm outline mt12" style="width:100%" data-act="mark-attendance" data-id="${a.id}">Log today</button>
+          ${a.attendance.length?`<div class="mt12 flex col gap8">${a.attendance.slice(-6).reverse().map(x=>`<div class="flex between" style="font-size:13px"><span>${fmtDate(x.date)}</span><span class="badge ${x.present?"success":"danger"}">${x.present?(x.hours||0)+"h":"Absent"}</span></div>`).join("")}</div>`:`<p class="muted mt12" style="font-size:13px">No attendance logged.</p>`}
+        </div>
+        <div class="card pad">
+          <h3 style="font-size:17px">💬 Mentor Feedback</h3>
+          ${a.feedback.length?`<div class="mt12 flex col gap8">${a.feedback.map(f=>`<div class="card pad" style="padding:10px"><div>${"★".repeat(f.rating)}${"☆".repeat(5-f.rating)}</div><p class="muted" style="font-size:13px">${esc(f.comment||"")}</p></div>`).join("")}</div>`:`<p class="muted mt12" style="font-size:13px">No feedback yet. Your mentor will review your work here.</p>`}
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ============================================================================
+   CERTIFICATES (student)
+   ========================================================================== */
+function viewCertificates(){
+  const g=requireRole("STUDENT","Student");if(g.fail)return g.fail;
+  const stu=Store.student(Session.current.studentId);
+  const certs=Store.data.certificates.filter(c=>c.studentId===stu.id);
+  certs.forEach(c=>afterRender(()=>{const cv=$("#qr_"+c.id);if(cv)drawQR(cv,"https://infinityinterns.com/verify/"+c.certificateId+"|"+c.contentHash);}));
+  return `<div class="container block" style="padding-top:28px">
+    <h1 style="font-size:26px">My Certificates</h1>
+    <p class="muted mt8">${certs.length} verified credential${certs.length===1?"":"s"}.</p>
+    ${certs.length?certs.map(c=>certificateCard(c)).join(""):`<div class="card pad center mt24" style="padding:50px"><p class="muted">Complete an internship to earn your first certificate.</p><a class="btn mt16" href="#/internships">Browse internships</a></div>`}
+  </div>`;
+}
+function certificateCard(c){
+  return `<div class="cert mt24" id="cert_${c.id}">
+    <div class="seal">VERIFIED<br>∞<br>INFINITY</div>
+    <div class="badge">${titleCase(c.type)}</div>
+    <h2 class="mt16" style="font-size:14px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted-fg)">Certificate of Completion</h2>
+    <p class="muted mt8" style="font-size:13px">This certifies that</p>
+    <h1 style="font-size:30px" class="gradient-text">${esc(c.studentName)}</h1>
+    <p class="mt8" style="font-size:14px">has successfully completed <b>${esc(c.title)}</b> ${c.durationWeeks?`(${c.durationWeeks} weeks)`:""} with <b>${esc(c.organizationName)}</b> in <b>${esc(c.domainName)}</b>${c.grade?` · Grade <b>${titleCase(c.grade)}</b>`:""}.</p>
+    <div class="flex between items-end mt24 wrap gap16">
+      <div>
+        <div class="mono" style="font-size:13px"><b>ID:</b> ${c.certificateId}</div>
+        <div class="mono muted" style="font-size:12px"><b>Verify #:</b> ${c.verificationNumber}</div>
+        <div class="mono muted" style="font-size:11px"><b>Hash:</b> ${c.contentHash.slice(0,40)}…</div>
+        <div class="muted" style="font-size:12px">Issued ${fmtDate(c.issueDate)}</div>
+        ${c.status==="REVOKED"?`<div class="badge danger mt8">REVOKED</div>`:""}
+        <div class="flex gap8 mt12"><a class="btn sm outline" href="#/verify/${c.certificateId}">Verify</a><button class="btn sm ghost" data-act="print-cert" data-id="${c.id}">🖨 Print / PDF</button></div>
+      </div>
+      <div class="center"><canvas class="qr" width="120" height="120" id="qr_${c.id}"></canvas><div class="muted" style="font-size:10px;margin-top:4px">Scan to verify</div></div>
+    </div>
+  </div>`;
+}
+
+/* ============================================================================
+   PROFILE EDIT (student)
+   ========================================================================== */
+function viewProfile(){
+  const g=requireRole("STUDENT","Student");if(g.fail)return g.fail;
+  const stu=Store.student(Session.current.studentId);
+  return `<div class="container block" style="padding-top:28px;max-width:760px">
+    <h1 style="font-size:26px">My Profile</h1>
+    <p class="muted mt8">Completion: <b>${stu.profileCompletion}%</b> — a stronger profile means better AI recommendations.</p>
+    <form class="card pad mt16" data-form="profile">
+      <div class="grid g2">
+        <div class="field"><label>Branch</label><select name="branch">${BRANCHES.map(b=>`<option value="${b.slug}" ${stu.branch===b.slug?"selected":""}>${b.name}</option>`).join("")}</select></div>
+        <div class="field"><label>College</label><input class="input" name="college" value="${esc(stu.college||"")}"></div>
+        <div class="field"><label>Graduation year</label><input class="input" type="number" name="gradYear" value="${stu.gradYear||""}"></div>
+        <div class="field"><label>CGPA</label><input class="input" type="number" step="0.01" name="cgpa" value="${stu.cgpa||""}"></div>
+        <div class="field"><label>City</label><input class="input" name="city" value="${esc(stu.city||"")}"></div>
+        <div class="field"><label>Resume URL</label><input class="input" name="resumeUrl" value="${esc(stu.resumeUrl||"")}"></div>
+        <div class="field"><label>GitHub URL</label><input class="input" name="githubUrl" value="${esc(stu.githubUrl||"")}"></div>
+        <div class="field"><label>LinkedIn URL</label><input class="input" name="linkedinUrl" value="${esc(stu.linkedinUrl||"")}"></div>
+      </div>
+      <div class="field"><label>Bio</label><textarea name="bio">${esc(stu.bio||"")}</textarea></div>
+      <div class="field"><label>Skills (comma-separated)</label><input class="input" name="skills" value="${esc((stu.skills||[]).join(", "))}" placeholder="React, Node.js, Python"></div>
+      <button class="btn">Save profile</button>
+    </form>
+  </div>`;
+}
+
+
+/* ============================================================================
+   TRANSITION HELPER
+   ========================================================================== */
+function allowedNext(app,actor){
+  const isAdmin=actor.roles.includes("ADMIN");
+  const ins=Store.internship(app.internshipId);
+  const isOrg=actor.orgId&&ins&&ins.orgId===actor.orgId;
+  return Workflow.next(app.status).filter(to=>{
+    if(to==="WITHDRAWN")return false;
+    if(["ADMIN_REVIEW","ORG_REVIEW","COMPLETED"].includes(to))return isAdmin;
+    if(["SHORTLISTED","UNDER_REVIEW","SELECTED","ONGOING","PERFORMANCE_EVALUATION","COMPLETION_APPROVAL","REJECTED"].includes(to))return isOrg||isAdmin;
+    return isAdmin;
+  });
+}
+function transitionButtons(app,actor){
+  const next=allowedNext(app,actor).filter(t=>!(actor.roles.includes("ORGANIZATION")&&t==="COMPLETION_APPROVAL"&&app.status==="PERFORMANCE_EVALUATION"));
+  return next.map(to=>`<button class="btn sm ${to==="REJECTED"?"danger":to==="SELECTED"?"success":"outline"}" data-act="transition" data-id="${app.id}" data-to="${to}">${titleCase(to)}</button>`).join(" ");
+}
+
+/* ============================================================================
+   ORGANIZATION DASHBOARD
+   ========================================================================== */
+let orgTab="listings";
+function viewOrg(){
+  const g=requireRole("ORGANIZATION","Organization");if(g.fail)return g.fail;
+  const u=Session.current,org=Store.org(u.orgId);
+  const mine=Store.data.internships.filter(i=>i.orgId===org.id);
+  const apps=Store.data.applications.filter(a=>mine.some(i=>i.id===a.internshipId));
+  const tabBtn=(id,label)=>`<button class="${orgTab===id?"active":""}" data-act="org-tab" data-tab="${id}">${label}</button>`;
+  let body="";
+  if(orgTab==="listings"){
+    body=`<div class="flex between items-center"><h3 style="font-size:18px">My Internships (${mine.length})</h3><button class="btn sm" data-act="org-tab" data-tab="post">+ New posting</button></div>
+      ${mine.length?`<table class="tbl mt16"><thead><tr><th>Title</th><th>Domain</th><th>Status</th><th>Applicants</th><th></th></tr></thead><tbody>
+      ${mine.map(i=>{const c=Store.data.applications.filter(a=>a.internshipId===i.id).length;return `<tr>
+        <td><b>${esc(i.title)}</b></td><td class="muted">${Store.domain(i.domain).name}</td>
+        <td><span class="badge ${i.status==="OPEN"?"success":i.status==="PENDING_APPROVAL"?"warning":"gray"}">${titleCase(i.status)}</span></td>
+        <td>${c}</td>
+        <td style="text-align:right">
+          ${i.status==="DRAFT"?`<button class="btn sm" data-act="ins-submit" data-id="${i.id}">Submit for approval</button>`:""}
+          ${i.status==="OPEN"?`<button class="btn sm outline" data-act="ins-close" data-id="${i.id}">Close</button>`:""}
+          ${i.status==="PENDING_APPROVAL"?`<span class="muted" style="font-size:12px">Awaiting admin</span>`:""}
+        </td></tr>`;}).join("")}</tbody></table>`:`<p class="muted mt16">No internships yet. Create your first posting.</p>`}`;
+  }else if(orgTab==="post"){
+    body=`<h3 style="font-size:18px">Post a new internship</h3>
+      <form class="mt16" data-form="post-internship">
+        <div class="field"><label>Title</label><input class="input" name="title" required placeholder="e.g. Backend Developer Intern"></div>
+        <div class="grid g2">
+          <div class="field"><label>Domain</label><select name="domain">${DOMAINS.map(d=>`<option value="${d.slug}">${d.name}</option>`).join("")}</select></div>
+          <div class="field"><label>Branch</label><select name="branch"><option value="">All branches</option>${BRANCHES.map(b=>`<option value="${b.slug}">${b.name}</option>`).join("")}</select></div>
+          <div class="field"><label>Work mode</label><select name="workMode">${["REMOTE","ONSITE","HYBRID"].map(m=>`<option>${m}</option>`).join("")}</select></div>
+          <div class="field"><label>Duration (weeks)</label><input class="input" type="number" name="durationWeeks" value="8" min="1"></div>
+          <div class="field"><label>Stipend min (₹/mo)</label><input class="input" type="number" name="stipendMin" value="10000"></div>
+          <div class="field"><label>Stipend max (₹/mo)</label><input class="input" type="number" name="stipendMax" value="20000"></div>
+          <div class="field"><label>Openings</label><input class="input" type="number" name="openings" value="2" min="1"></div>
+        </div>
+        <div class="field"><label>Description</label><textarea name="description" required placeholder="What will the intern do?"></textarea></div>
+        <div class="field"><label>Responsibilities</label><textarea name="responsibilities"></textarea></div>
+        <div class="field"><label>Eligibility</label><input class="input" name="eligibility" placeholder="e.g. CSE/IT, 2026-27 grads"></div>
+        <button class="btn">Create internship (Draft)</button>
+      </form>`;
+  }else{
+    body=`<h3 style="font-size:18px">Applicant Pipeline (${apps.length})</h3>
+      ${apps.length?apps.slice().reverse().map(a=>{const i=Store.internship(a.internshipId),s=Store.student(a.studentId),su=Store.user(s.userId);a.tasks=a.tasks||[];return `
+        <div class="card pad mt16">
+          <div class="flex between items-center wrap gap8">
+            <div class="flex items-center gap12"><span class="avatar">${esc(initials(su.fullName))}</span>
+              <div><b>${esc(su.fullName)}</b><div class="muted" style="font-size:12px">${esc(i.title)} · ${s.branch?Store.branch(s.branch).code:""} ${s.cgpa?"· CGPA "+s.cgpa:""}</div>
+              <div class="pill-row mt8">${(s.skills||[]).slice(0,5).map(k=>`<span class="badge gray">${esc(k)}</span>`).join("")}</div></div></div>
+            <span class="badge ${STATUS_BADGE[a.status]}">${titleCase(a.status)}</span>
+          </div>
+          ${a.tasks.length?`<div class="divider"></div><b style="font-size:13px">Task submissions</b>${a.tasks.map(t=>`<div class="flex between items-center mt8"><span style="font-size:13px">${esc(t.title)} <span class="badge ${t.status==="APPROVED"?"success":t.status==="REJECTED"?"danger":"gray"}">${titleCase(t.status)}</span></span>${t.status==="SUBMITTED"?`<span><button class="btn sm success" data-act="review-task" data-app="${a.id}" data-task="${t.id}" data-status="APPROVED">Approve</button> <button class="btn sm danger" data-act="review-task" data-app="${a.id}" data-task="${t.id}" data-status="REJECTED">Reject</button></span>`:""}</div>`).join("")}`:""}
+          <div class="divider"></div>
+          <div class="flex gap8 wrap items-center">
+            ${a.resumeUrl?`<a class="btn sm ghost" href="${esc(a.resumeUrl)}" target="_blank">📄 Resume</a>`:""}
+            ${a.githubUrl?`<a class="btn sm ghost" href="${esc(a.githubUrl)}" target="_blank">🐙 GitHub</a>`:""}
+            ${transitionButtons(a,u)}
+            ${a.status==="PERFORMANCE_EVALUATION"?`<button class="btn sm" data-act="evaluate" data-id="${a.id}">🎓 Evaluate & approve</button>`:""}
+            ${a.feedbackBtn!==false&&["ONGOING","PERFORMANCE_EVALUATION"].includes(a.status)?`<button class="btn sm ghost" data-act="add-feedback" data-id="${a.id}">💬 Feedback</button>`:""}
+          </div>
+          ${a.coverLetter?`<p class="muted mt12" style="font-size:13px">“${esc(a.coverLetter)}”</p>`:""}
+        </div>`;}).join(""):`<p class="muted mt16">No applicants yet.</p>`}`;
+  }
+  return `<div class="container block" style="padding-top:28px">
+    <div class="flex between items-center wrap gap12"><div><h1 style="font-size:26px">${esc(org.companyName)}</h1><p class="muted mt8">Organization dashboard ${org.verified?'<span class="badge success">Verified</span>':'<span class="badge warning">Unverified</span>'}</p></div></div>
+    <div class="grid g4 mt24" style="gap:12px">
+      <div class="card pad center"><div style="font-size:22px;font-weight:800">${mine.length}</div><div class="muted" style="font-size:12px">Postings</div></div>
+      <div class="card pad center"><div style="font-size:22px;font-weight:800">${mine.filter(i=>i.status==="OPEN").length}</div><div class="muted" style="font-size:12px">Open</div></div>
+      <div class="card pad center"><div style="font-size:22px;font-weight:800">${apps.length}</div><div class="muted" style="font-size:12px">Applicants</div></div>
+      <div class="card pad center"><div style="font-size:22px;font-weight:800">${apps.filter(a=>["SELECTED","ONGOING","PERFORMANCE_EVALUATION","COMPLETION_APPROVAL","COMPLETED","CERTIFICATE_GENERATED"].includes(a.status)).length}</div><div class="muted" style="font-size:12px">Selected+</div></div>
+    </div>
+    <div class="tabs mt24" style="max-width:520px">${tabBtn("listings","My Listings")}${tabBtn("post","Post Internship")}${tabBtn("applicants","Applicants")}</div>
+    <div class="card pad mt16">${body}</div>
+  </div>`;
+}
+
+/* ============================================================================
+   ADMIN DASHBOARD
+   ========================================================================== */
+let adminTab="overview";
+function viewAdmin(){
+  const g=requireRole("ADMIN","Admin");if(g.fail)return g.fail;
+  const u=Session.current,D=Store.data;
+  const tabBtn=(id,label,n)=>`<button class="${adminTab===id?"active":""}" data-act="admin-tab" data-tab="${id}">${label}${n?` <span class="badge gray">${n}</span>`:""}</button>`;
+  const pendingIns=D.internships.filter(i=>i.status==="PENDING_APPROVAL");
+  const adminApps=D.applications.filter(a=>["APPLIED","ADMIN_REVIEW","COMPLETION_APPROVAL","COMPLETED"].includes(a.status));
+  let body="";
+  if(adminTab==="overview"){
+    const totalApps=D.applications.length;
+    const selected=D.applications.filter(a=>["SELECTED","ONGOING","PERFORMANCE_EVALUATION","COMPLETION_APPROVAL","COMPLETED","CERTIFICATE_GENERATED"].includes(a.status)).length;
+    const completed=D.applications.filter(a=>["COMPLETED","CERTIFICATE_GENERATED"].includes(a.status)).length;
+    const placement=totalApps?Math.round(selected/totalApps*100):0;
+    const completion=selected?Math.round(completed/selected*100):0;
+    const byStatus={};D.applications.forEach(a=>byStatus[a.status]=(byStatus[a.status]||0)+1);
+    const maxS=Math.max(1,...Object.values(byStatus));
+    const domCount={};D.internships.forEach(i=>domCount[i.domain]=(domCount[i.domain]||0)+1);
+    const topDom=Object.entries(domCount).sort((a,b)=>b[1]-a[1]).slice(0,6);
+    const maxD=Math.max(1,...topDom.map(d=>d[1]));
+    const kpis=[["Students",D.students.length,"🎓"],["Organizations",D.orgs.length,"🏢"],["Open internships",D.internships.filter(i=>i.status==="OPEN").length,"💼"],["Applications",totalApps,"📨"],["Certificates",D.certificates.length,"🏅"],["Verifications",D.verifications.length,"🔎"]];
+    body=`<div class="grid g3">${kpis.map(([l,v,ic])=>`<div class="card pad flex items-center gap16"><div class="ficon" style="margin:0">${ic}</div><div><div style="font-size:24px;font-weight:800">${v}</div><div class="muted" style="font-size:12px">${l}</div></div></div>`).join("")}</div>
+      <div class="grid g2 mt24">
+        <div class="card pad"><div class="muted" style="font-size:13px">Placement rate</div><div style="font-size:30px;font-weight:850">${placement}%</div><div class="progress mt8"><i style="width:${placement}%"></i></div></div>
+        <div class="card pad"><div class="muted" style="font-size:13px">Completion rate</div><div style="font-size:30px;font-weight:850">${completion}%</div><div class="progress mt8"><i style="width:${completion}%"></i></div></div>
+      </div>
+      <div class="grid g2 mt24">
+        <div class="card pad"><h3 style="font-size:16px" class="mb16">Applications by status</h3>${Object.entries(byStatus).sort((a,b)=>b[1]-a[1]).map(([s,n])=>`<div class="mb8"><div class="flex between" style="font-size:12px"><span>${titleCase(s)}</span><b>${n}</b></div><div class="progress" style="height:8px"><i style="width:${n/maxS*100}%"></i></div></div>`).join("")||'<p class="muted">No data</p>'}</div>
+        <div class="card pad"><h3 style="font-size:16px" class="mb16">Top domains by postings</h3>${topDom.map(([d,n])=>`<div class="mb8"><div class="flex between" style="font-size:12px"><span>${Store.domain(d).name}</span><b>${n}</b></div><div class="progress" style="height:8px"><i style="width:${n/maxD*100}%"></i></div></div>`).join("")}</div>
+      </div>`;
+  }else if(adminTab==="approvals"){
+    body=`<h3 style="font-size:18px">Internships awaiting approval (${pendingIns.length})</h3>
+      ${pendingIns.length?`<table class="tbl mt12"><thead><tr><th>Title</th><th>Org</th><th>Domain</th><th></th></tr></thead><tbody>
+      ${pendingIns.map(i=>`<tr><td><b>${esc(i.title)}</b></td><td>${esc(Store.org(i.orgId).companyName)}</td><td class="muted">${Store.domain(i.domain).name}</td>
+        <td style="text-align:right"><button class="btn sm success" data-act="ins-approve" data-id="${i.id}">Approve</button> <button class="btn sm danger" data-act="ins-reject" data-id="${i.id}">Reject</button></td></tr>`).join("")}</tbody></table>`:`<p class="muted mt12">Nothing pending.</p>`}
+      <div class="divider"></div>
+      <h3 style="font-size:18px">Application workflow gates (${adminApps.length})</h3>
+      <p class="muted" style="font-size:13px">Admin moves applications through review gates and final completion approval.</p>
+      ${adminApps.length?adminApps.slice().reverse().map(a=>{const i=Store.internship(a.internshipId),su=Store.user(Store.student(a.studentId).userId);return `<div class="card pad mt12 flex between items-center wrap gap8">
+        <div><b>${esc(su.fullName)}</b> <span class="muted" style="font-size:12px">→ ${esc(i.title)}</span><div><span class="badge ${STATUS_BADGE[a.status]}">${titleCase(a.status)}</span></div></div>
+        <div class="flex gap8 wrap">
+          ${transitionButtons(a,u)}
+          ${a.status==="COMPLETED"?`<button class="btn sm success" data-act="issue-cert" data-id="${a.id}">🏅 Issue certificate</button>`:""}
+        </div></div>`;}).join(""):`<p class="muted mt12">No applications need admin action.</p>`}`;
+  }else if(adminTab==="users"){
+    body=`<h3 style="font-size:18px">Users (${D.users.length})</h3>
+      <table class="tbl mt12"><thead><tr><th>Name</th><th>Email</th><th>Roles</th><th>Status</th><th></th></tr></thead><tbody>
+      ${D.users.map(usr=>`<tr><td><b>${esc(usr.fullName)}</b></td><td class="muted">${esc(usr.email)}</td><td>${usr.roles.map(r=>`<span class="badge gray">${r}</span>`).join(" ")}</td>
+        <td><span class="badge ${usr.status==="ACTIVE"?"success":"danger"}">${usr.status}</span></td>
+        <td style="text-align:right">${usr.roles.includes("ADMIN")?'<span class="muted" style="font-size:12px">—</span>':usr.status==="ACTIVE"?`<button class="btn sm danger" data-act="set-status" data-id="${usr.id}" data-status="SUSPENDED">Suspend</button>`:`<button class="btn sm success" data-act="set-status" data-id="${usr.id}" data-status="ACTIVE">Activate</button>`}</td></tr>`).join("")}</tbody></table>`;
+  }else{
+    const completedNoCert=D.applications.filter(a=>a.status==="COMPLETED");
+    body=`<div class="flex between items-center wrap gap8"><h3 style="font-size:18px">Certificates (${D.certificates.length})</h3>
+      <div class="flex gap8"><button class="btn sm" data-act="manual-cert">+ Manual certificate</button>${completedNoCert.length?`<button class="btn sm outline" data-act="bulk-cert">Bulk issue (${completedNoCert.length})</button>`:""}</div></div>
+      ${D.certificates.length?`<table class="tbl mt12"><thead><tr><th>ID</th><th>Student</th><th>Title</th><th>Status</th><th></th></tr></thead><tbody>
+      ${D.certificates.slice().reverse().map(c=>`<tr><td class="mono" style="font-size:12px">${c.certificateId}</td><td>${esc(c.studentName)}</td><td class="muted">${esc(c.title)}</td>
+        <td><span class="badge ${c.status==="ISSUED"?"success":"danger"}">${c.status}</span></td>
+        <td style="text-align:right"><a class="btn sm ghost" href="#/verify/${c.certificateId}">Verify</a>
+          ${c.status==="ISSUED"?`<button class="btn sm outline" data-act="tamper-cert" data-id="${c.id}" title="Demo: edit a field without updating the hash">Simulate tamper</button> <button class="btn sm danger" data-act="revoke-cert" data-id="${c.id}">Revoke</button>`:""}</td></tr>`).join("")}</tbody></table>`:`<p class="muted mt12">No certificates issued yet.</p>`}`;
+  }
+  return `<div class="container block" style="padding-top:28px">
+    <h1 style="font-size:26px">Admin Console</h1><p class="muted mt8">Full platform control · approvals · users · certificates · analytics</p>
+    <div class="tabs mt24" style="max-width:680px">${tabBtn("overview","Overview")}${tabBtn("approvals","Approvals",pendingIns.length+adminApps.length||"")}${tabBtn("users","Users")}${tabBtn("certs","Certificates")}</div>
+    <div class="card pad mt16">${body}</div>
+  </div>`;
+}
+
+/* ============================================================================
+   LEADERBOARD
+   ========================================================================== */
+function viewLeaderboard(){
+  const rows=Store.data.students.map(s=>{const u=Store.user(s.userId);const certs=Store.data.certificates.filter(c=>c.studentId===s.id).length;
+    return {name:u?u.fullName:"—",branch:s.branch?Store.branch(s.branch).code:"—",xp:s.xp||0,level:Gamify.level(s.xp||0),badges:(s.badges||[]).length,certs};})
+    .sort((a,b)=>b.xp-a.xp);
+  const medal=(i)=>i===0?"🥇":i===1?"🥈":i===2?"🥉":`#${i+1}`;
+  return `<div class="container block" style="padding-top:28px;max-width:840px">
+    <h1 style="font-size:26px">🏆 Leaderboard</h1><p class="muted mt8">Top students by XP across the platform.</p>
+    <div class="card pad mt16"><table class="tbl"><thead><tr><th>Rank</th><th>Student</th><th>Branch</th><th>Level</th><th>Badges</th><th>Certs</th><th>XP</th></tr></thead><tbody>
+    ${rows.map((r,i)=>`<tr><td style="font-size:18px">${medal(i)}</td><td><div class="flex items-center gap8"><span class="avatar" style="width:30px;height:30px;font-size:12px">${esc(initials(r.name))}</span><b>${esc(r.name)}</b></div></td>
+      <td class="muted">${r.branch}</td><td><span class="badge">Lv ${r.level}</span></td><td>${r.badges}</td><td>${r.certs}</td><td><b>${r.xp}</b></td></tr>`).join("")}
+    </tbody></table></div>
+  </div>`;
+}
+
+
+/* ============================================================================
+   ACTION MODALS
+   ========================================================================== */
+function taskModal(appId){openModal(`<h2 style="font-size:20px">Submit a task</h2>
+  <form data-form="task" class="mt16"><input type="hidden" name="appId" value="${appId}">
+    <div class="field"><label>Title</label><input class="input" name="title" required placeholder="e.g. Build login page"></div>
+    <div class="field"><label>Description</label><textarea name="description"></textarea></div>
+    <div class="grid g2"><div class="field"><label>Submission URL</label><input class="input" name="submissionUrl" placeholder="https://github.com/..."></div>
+    <div class="field"><label>Week #</label><input class="input" type="number" name="weekNumber" value="1" min="1"></div></div>
+    <div class="flex gap8" style="justify-content:flex-end"><button type="button" class="btn ghost" data-act="close-modal">Cancel</button><button class="btn">Submit</button></div></form>`);}
+function reportModal(appId){openModal(`<h2 style="font-size:20px">Weekly report</h2>
+  <form data-form="report" class="mt16"><input type="hidden" name="appId" value="${appId}">
+    <div class="grid g2"><div class="field"><label>Week #</label><input class="input" type="number" name="weekNumber" value="1" min="1"></div>
+    <div class="field"><label>Hours logged</label><input class="input" type="number" name="hoursLogged" value="40"></div></div>
+    <div class="field"><label>Summary</label><textarea name="summary" required placeholder="What did you accomplish?"></textarea></div>
+    <div class="field"><label>Blockers (optional)</label><input class="input" name="blockers"></div>
+    <div class="flex gap8" style="justify-content:flex-end"><button type="button" class="btn ghost" data-act="close-modal">Cancel</button><button class="btn">Save report</button></div></form>`);}
+function attendanceModal(appId){const today=new Date().toISOString().slice(0,10);openModal(`<h2 style="font-size:20px">Log attendance</h2>
+  <form data-form="attendance" class="mt16"><input type="hidden" name="appId" value="${appId}">
+    <div class="grid g2"><div class="field"><label>Date</label><input class="input" type="date" name="date" value="${today}"></div>
+    <div class="field"><label>Hours</label><input class="input" type="number" name="hours" value="8" step="0.5"></div></div>
+    <div class="flex gap8" style="justify-content:flex-end"><button type="button" class="btn ghost" data-act="close-modal">Cancel</button><button class="btn">Log</button></div></form>`);}
+function evaluateModal(appId){openModal(`<h2 style="font-size:20px">Performance Evaluation</h2><p class="muted mt8" style="font-size:13px">Grade the intern and approve for completion.</p>
+  <form data-form="evaluate" class="mt16"><input type="hidden" name="appId" value="${appId}">
+    <div class="grid g2"><div class="field"><label>Grade</label><select name="grade">${["A_PLUS","A","B","C","PASS"].map(x=>`<option value="${x}">${titleCase(x)}</option>`).join("")}</select></div>
+    <div class="field"><label>Score /100</label><input class="input" type="number" name="score" value="90" min="0" max="100"></div></div>
+    <div class="field"><label>Note</label><textarea name="note" placeholder="Summary of performance"></textarea></div>
+    <div class="flex gap8" style="justify-content:flex-end"><button type="button" class="btn ghost" data-act="close-modal">Cancel</button><button class="btn">Approve completion →</button></div></form>`);}
+function feedbackModal(appId){openModal(`<h2 style="font-size:20px">Mentor feedback</h2>
+  <form data-form="feedback" class="mt16"><input type="hidden" name="appId" value="${appId}">
+    <div class="field"><label>Rating</label><select name="rating">${[5,4,3,2,1].map(r=>`<option value="${r}">${"★".repeat(r)}${"☆".repeat(5-r)}</option>`).join("")}</select></div>
+    <div class="field"><label>Comment</label><textarea name="comment" placeholder="Constructive feedback"></textarea></div>
+    <div class="flex gap8" style="justify-content:flex-end"><button type="button" class="btn ghost" data-act="close-modal">Cancel</button><button class="btn">Send feedback</button></div></form>`);}
+function manualCertModal(){const students=Store.data.students.map(s=>{const u=Store.user(s.userId);return `<option value="${s.id}">${esc(u?u.fullName:s.id)}</option>`;}).join("");
+  openModal(`<h2 style="font-size:20px">Issue manual certificate</h2>
+  <form data-form="manual-cert" class="mt16">
+    <div class="field"><label>Student</label><select name="studentId">${students}</select></div>
+    <div class="field"><label>Type</label><select name="type">${["WORKSHOP","TRAINING","EXCELLENCE_AWARD","APPRECIATION","LETTER_OF_RECOMMENDATION"].map(t=>`<option value="${t}">${titleCase(t)}</option>`).join("")}</select></div>
+    <div class="field"><label>Title</label><input class="input" name="title" required value="Generative AI Bootcamp 2026"></div>
+    <div class="grid g2"><div class="field"><label>Organization</label><input class="input" name="organizationName" value="Infinity Interns Academy"></div>
+    <div class="field"><label>Domain</label><input class="input" name="domainName" value="Generative AI"></div></div>
+    <div class="flex gap8" style="justify-content:flex-end"><button type="button" class="btn ghost" data-act="close-modal">Cancel</button><button class="btn">Issue</button></div></form>`);}
+function assessmentModal(){openModal(`<h2 style="font-size:20px">⚡ Skill Assessment</h2><p class="muted mt8" style="font-size:13px">5 quick questions · score 60%+ to earn XP.</p>
+  <form data-form="assessment" class="mt16">${QUIZ.map((q,i)=>`<div class="field"><label>${i+1}. ${esc(q.q)}</label>${q.a.map((opt,j)=>`<label style="font-weight:400;display:flex;gap:8px;align-items:center;margin-bottom:4px"><input type="radio" name="q${i}" value="${j}" style="width:auto"> ${esc(opt)}</label>`).join("")}</div>`).join("")}
+    <div class="flex gap8" style="justify-content:flex-end"><button type="button" class="btn ghost" data-act="close-modal">Cancel</button><button class="btn">Submit</button></div></form>`);}
+
+function printCert(id){
+  const c=Store.certificate(id);if(!c)return;
+  const w=window.open("","_blank");
+  const tmp=document.createElement("canvas");tmp.width=160;tmp.height=160;drawQR(tmp,"https://infinityinterns.com/verify/"+c.certificateId+"|"+c.contentHash);
+  w.document.write(`<html><head><title>${c.certificateId}</title><style>body{font-family:Inter,Arial,sans-serif;padding:40px;color:#0f172a}
+    .cert{border:3px solid #6d4aff;border-radius:18px;padding:48px;max-width:720px;margin:auto;text-align:center}
+    .name{font-size:34px;color:#6d4aff;margin:10px 0}.mono{font-family:monospace}h2{letter-spacing:.2em;color:#64748b;font-size:14px}</style></head>
+    <body><div class="cert"><div style="font-size:30px">∞ Infinity Interns™</div><h2>CERTIFICATE OF ${titleCase(c.type).toUpperCase()}</h2>
+    <p>This certifies that</p><div class="name">${esc(c.studentName)}</div>
+    <p>has successfully completed <b>${esc(c.title)}</b> with <b>${esc(c.organizationName)}</b> in <b>${esc(c.domainName)}</b>${c.grade?` · Grade ${titleCase(c.grade)}`:""}.</p>
+    <img src="${tmp.toDataURL()}" width="150" style="margin-top:20px"/>
+    <p class="mono" style="font-size:12px">ID: ${c.certificateId} · Verify#: ${c.verificationNumber}<br>Hash: ${c.contentHash}</p>
+    <p style="color:#64748b">Issued ${fmtDate(c.issueDate)}</p></div>
+    <script>window.onload=()=>window.print()<\/script></body></html>`);
+  w.document.close();
+}
+
+/* ============================================================================
+   EVENT DELEGATION
+   ========================================================================== */
+function closeDropdowns(){$$(".dropdown").forEach(d=>d.classList.add("hidden"));}
+
+document.addEventListener("click",(e)=>{
+  // close dropdowns when clicking outside the header widgets
+  if(!e.target.closest(".notif-wrap"))closeDropdowns();
+  const el=e.target.closest("[data-act]");
+  if(!el)return;
+  const act=el.dataset.act, id=el.dataset.id, u=Session.current;
+  const need=(role)=>{if(!u){toast("Please log in first","warn");navigate("/login");return false;}if(role&&!u.roles.includes(role)){toast("Wrong account type","error");return false;}return true;};
+  e.preventDefault();
+  try{
+  switch(act){
+    case "theme":{const t=document.documentElement.getAttribute("data-theme")==="dark"?"light":"dark";document.documentElement.setAttribute("data-theme",t);localStorage.setItem("ii_theme",t);renderHeaderBits();break;}
+    case "toggle-notif":{const dd=$("#notif-dd");const open=dd.classList.contains("hidden");closeDropdowns();if(open){dd.innerHTML=notifDropdown();dd.classList.remove("hidden");}break;}
+    case "toggle-user":{const dd=$("#user-dd");const open=dd.classList.contains("hidden");closeDropdowns();if(open)dd.classList.remove("hidden");break;}
+    case "read-all":{myNotifs().forEach(n=>n.read=true);Store.save();renderHeaderBits();const dd=$("#notif-dd");if(dd){dd.innerHTML=notifDropdown();dd.classList.remove("hidden");}break;}
+    case "read-notif":{const n=Store.data.notifications.find(x=>x.id===el.dataset.id);if(n){n.read=true;Store.save();}closeDropdowns();if(n&&n.link)navigate(n.link.replace(/^#/,""));else renderHeaderBits();break;}
+    case "logout":Auth.logout();toast("Logged out");break;
+    case "modal-backdrop":if(e.target===el)closeModal();break;
+    case "close-modal":closeModal();break;
+    case "auth-role":authRole=el.dataset.role;render();break;
+    case "filter-branch":catalogFilters={q:"",domain:"",branch:el.dataset.slug,workMode:""};navigate("/internships");break;
+    case "filter-domain":catalogFilters={q:"",domain:el.dataset.slug,branch:"",workMode:""};navigate("/internships");break;
+    case "set-domain":catalogFilters.domain=el.dataset.slug;render();break;
+    case "set-branch":catalogFilters.branch=el.dataset.slug;render();break;
+    case "clear-filters":catalogFilters={q:"",domain:"",branch:"",workMode:""};render();break;
+    case "apply":applyModal(el.dataset.slug);break;
+    case "org-tab":orgTab=el.dataset.tab;render();break;
+    case "admin-tab":adminTab=el.dataset.tab;render();break;
+    case "assessment":assessmentModal();break;
+    case "add-task":taskModal(id);break;
+    case "add-report":reportModal(id);break;
+    case "mark-attendance":attendanceModal(id);break;
+    case "add-feedback":feedbackModal(id);break;
+    case "evaluate":evaluateModal(id);break;
+    case "manual-cert":manualCertModal();break;
+    case "print-cert":printCert(id);break;
+    case "review-task":{const a=Store.application(el.dataset.app);const t=a.tasks.find(x=>x.id===el.dataset.task);t.status=el.dataset.status;t.reviewedAt=nowISO();if(t.status==="APPROVED"){t.score=t.score||90;const stu=Store.student(a.studentId);Gamify.badge(stu,"task-master");}Store.save();toast("Task "+titleCase(t.status));render();break;}
+    case "transition":{Workflow.transition(id,el.dataset.to,u,el.dataset.to==="REJECTED"?(prompt("Reason for rejection?")||""):"");toast("Moved to "+titleCase(el.dataset.to));render();break;}
+    case "ins-submit":{const i=Store.internship(id);i.status="PENDING_APPROVAL";Store.save();toast("Submitted for admin approval");render();break;}
+    case "ins-close":{const i=Store.internship(id);i.status="CLOSED";Store.save();toast("Internship closed");render();break;}
+    case "ins-approve":{const i=Store.internship(id);i.status="OPEN";i.approvedAt=nowISO();Store.save();const ou=Store.org(i.orgId);notify(Store.user(ou.userId).id,"Internship approved ✅","“"+i.title+"” is now live.","#/org");toast("Approved & published");render();break;}
+    case "ins-reject":{const i=Store.internship(id);i.status="DRAFT";Store.save();toast("Sent back to draft");render();break;}
+    case "issue-cert":{const c=Certs.issueForApplication(id,u.id);toast("Certificate "+c.certificateId+" issued 🏅");render();break;}
+    case "bulk-cert":{const done=Store.data.applications.filter(a=>a.status==="COMPLETED");let n=0;done.forEach(a=>{try{Certs.issueForApplication(a.id,u.id);n++;}catch(e){}});toast(n+" certificate(s) issued");render();break;}
+    case "revoke-cert":{Certs.revoke(id,prompt("Reason for revocation?")||"Revoked by admin");toast("Certificate revoked");render();break;}
+    case "tamper-cert":{Certs.simulateTamper(id);toast("Field edited WITHOUT updating hash — try verifying it now","warn");render();break;}
+    case "set-status":{const usr=Store.user(id);usr.status=el.dataset.status;Store.save();toast("User "+el.dataset.status.toLowerCase());render();break;}
+    case "reset-demo":{if(confirm("Reset all demo data?")){Store.reset();Session.clear();toast("Demo reset");navigate("/");render();}break;}
+  }
+  }catch(err){toast(err.message,"error");}
+});
+
+/* ---- form submissions ---- */
+document.addEventListener("submit",(e)=>{
+  const form=e.target;const fname=form.dataset.form;if(!fname)return;
+  e.preventDefault();
+  const data=Object.fromEntries(new FormData(form).entries());
+  const u=Session.current;
+  try{
+  switch(fname){
+    case "login":{const usr=Auth.login(data.email,data.password);toast("Welcome back, "+usr.fullName.split(" ")[0]);navigate(usr.roles.includes("ADMIN")?"/admin":usr.roles.includes("ORGANIZATION")?"/org":"/dashboard");break;}
+    case "register":{const usr=Auth.register(data);toast("Account created 🎉");navigate(usr.roles.includes("ORGANIZATION")?"/org":"/dashboard");break;}
+    case "search":{catalogFilters.q=data.q||"";catalogFilters.workMode=data.workMode||"";render();break;}
+    case "verify":{if(data.identifier&&data.identifier.trim())navigate("/verify/"+encodeURIComponent(data.identifier.trim()));break;}
+    case "apply":{
+      const i=Store.internshipBySlug(data.slug);const stu=Store.student(u.studentId);
+      if(Store.data.applications.find(a=>a.studentId===stu.id&&a.internshipId===i.id))throw new Error("Already applied");
+      const app={id:uid("app"),studentId:stu.id,internshipId:i.id,status:"APPLIED",coverLetter:data.coverLetter||"",
+        resumeUrl:data.resumeUrl||stu.resumeUrl,githubUrl:data.githubUrl||stu.githubUrl,appliedAt:nowISO(),
+        history:[{from:null,to:"APPLIED",actorId:u.id,at:nowISO()}],tasks:[],attendance:[],reports:[],feedback:[]};
+      Store.data.applications.push(app);Gamify.add(stu,25);Gamify.badge(stu,"first-application");Store.save();
+      const ou=Store.org(i.orgId);notify(Store.user(ou.userId).id,"New applicant","Someone applied to “"+i.title+"”.","#/org");
+      closeModal();toast("Application submitted! ⚡");navigate("/dashboard");break;}
+    case "profile":{const stu=Store.student(u.studentId);Object.assign(stu,{branch:data.branch,college:data.college,
+      gradYear:data.gradYear?+data.gradYear:null,cgpa:data.cgpa?+data.cgpa:null,city:data.city,bio:data.bio,
+      resumeUrl:data.resumeUrl,githubUrl:data.githubUrl,linkedinUrl:data.linkedinUrl,
+      skills:(data.skills||"").split(",").map(s=>s.trim()).filter(Boolean)});
+      stu.profileCompletion=computeCompletion(stu);Store.save();toast("Profile saved");navigate("/dashboard");break;}
+    case "post-internship":{const org=Store.org(u.orgId);const ins={id:uid("int"),
+      slug:data.title.toLowerCase().replace(/[^a-z0-9]+/g,"-")+"-"+Math.random().toString(36).slice(2,6),
+      title:data.title,description:data.description,responsibilities:data.responsibilities||"",eligibility:data.eligibility||"",
+      orgId:org.id,domain:data.domain,branch:data.branch||"",workMode:data.workMode,stipendMin:+data.stipendMin||null,
+      stipendMax:+data.stipendMax||null,durationWeeks:+data.durationWeeks||8,openings:+data.openings||1,status:"DRAFT",views:0,createdAt:nowISO()};
+      Store.data.internships.push(ins);Store.save();orgTab="listings";toast("Internship created as draft");render();break;}
+    case "task":{const a=Store.application(data.appId);a.tasks=a.tasks||[];a.tasks.push({id:uid("tsk"),title:data.title,description:data.description,submissionUrl:data.submissionUrl,weekNumber:+data.weekNumber||1,status:"SUBMITTED",submittedAt:nowISO()});Store.save();closeModal();toast("Task submitted");render();break;}
+    case "report":{const a=Store.application(data.appId);a.reports=a.reports||[];const wk=+data.weekNumber||1;const ex=a.reports.find(r=>r.weekNumber===wk);if(ex){Object.assign(ex,{summary:data.summary,hoursLogged:+data.hoursLogged||0,blockers:data.blockers});}else{a.reports.push({id:uid("rep"),weekNumber:wk,summary:data.summary,hoursLogged:+data.hoursLogged||0,blockers:data.blockers,at:nowISO()});}Store.save();closeModal();toast("Weekly report saved");render();break;}
+    case "attendance":{const a=Store.application(data.appId);a.attendance=a.attendance||[];const ex=a.attendance.find(x=>x.date===data.date);if(ex){ex.hours=+data.hours;ex.present=true;}else{a.attendance.push({date:data.date,present:true,hours:+data.hours});}const stu=Store.student(a.studentId);if(a.attendance.filter(x=>x.present).length>=5)Gamify.badge(stu,"perfect-attendance");Store.save();closeModal();toast("Attendance logged");render();break;}
+    case "evaluate":{const a=Store.application(data.appId);a.finalGrade=data.grade;a.finalScore=+data.score;Workflow.transition(a.id,"COMPLETION_APPROVAL",u,"Graded "+titleCase(data.grade)+" ("+data.score+"/100)"+(data.note?" — "+data.note:""));closeModal();toast("Evaluated → awaiting admin completion");render();break;}
+    case "feedback":{const a=Store.application(data.appId);a.feedback=a.feedback||[];a.feedback.push({id:uid("fb"),rating:+data.rating,comment:data.comment,at:nowISO()});Store.save();closeModal();toast("Feedback sent");render();break;}
+    case "manual-cert":{const stu=Store.student(data.studentId);const su=Store.user(stu.userId);const c=Certs.issue({type:data.type,studentId:stu.id,studentName:su.fullName,organizationName:data.organizationName,domainName:data.domainName,title:data.title,issuedBy:u.id});notify(su.id,"Certificate issued 🏅","You received: "+c.title,"#/certificates");closeModal();toast("Certificate "+c.certificateId+" issued");render();break;}
+    case "assessment":{let correct=0;QUIZ.forEach((q,i)=>{if(+data["q"+i]===q.c)correct++;});const score=Math.round(correct/QUIZ.length*100);const pass=score>=60;if(u&&u.studentId&&pass)Gamify.add(Store.student(u.studentId),80);closeModal();toast("You scored "+score+"% "+(pass?"— +80 XP! 🎉":"— keep practicing"),pass?"success":"warn");render();break;}
+  }
+  }catch(err){toast(err.message,"error");}
+});
+
+/* ============================================================================
+   INIT
+   ========================================================================== */
+(function init(){
+  const t=localStorage.getItem("ii_theme");if(t)document.documentElement.setAttribute("data-theme",t);
+  Store.load();Session.load();
+  window.addEventListener("hashchange",render);
+  render();
+})();
+</script>
+</body>
+</html>
